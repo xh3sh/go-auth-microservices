@@ -7,15 +7,14 @@
 
     <!-- Все логи -->
     <div x-show="activeLogTab === 'all'">
-        <button class="btn-submit" 
-                @click="fetchLogs('/log/logs?page_size=50')"
+        <button class="btn-submit"
+                @click="fetchLogs('/audit/entries?page_size=50')"
                 :disabled="loading"
                 style="background: #e67e22; border-color: #d35400;">
-            <span x-show="!loading">Запросить последние 50 логов</span>
+            <span x-show="!loading">Запросить последние 50 записей аудита</span>
             <span x-show="loading">Загрузка...</span>
         </button>
     </div>
-
     <!-- Фильтрация -->
     <div x-show="activeLogTab === 'filter'">
         <form @submit.prevent="applyFilters($event)" class="form-container">

@@ -45,7 +45,7 @@ function registerLogComponents() {
                 if (value) params.append(key, value);
             }
             params.append('page_size', '50');
-            await this.fetchLogs('/log/logs/filter?' + params.toString());
+            await this.fetchLogs('/audit/entries/filter?' + params.toString());
         }
     }));
 }

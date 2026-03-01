@@ -46,10 +46,10 @@ func NewGatewayRouter(authAddr, userAddr, logAddr, frontendAddr string, authMidd
 		})
 	}
 
-	logs := r.Group("/log")
-	logs.Use(authMiddleware.UniversalAuth())
+	audit := r.Group("/audit")
+	audit.Use(authMiddleware.UniversalAuth())
 	{
-		logs.Any("/*any", func(c *gin.Context) {
+		audit.Any("/*any", func(c *gin.Context) {
 			logProxy.ServeHTTP(c.Writer, c.Request)
 		})
 	}

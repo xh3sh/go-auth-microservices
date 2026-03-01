@@ -12,10 +12,10 @@ func NewLogRouter(h *handler.Handler) *gin.Engine {
 
 	r.SetHTMLTemplate(handler.NewTemplates())
 
-	logGroup := r.Group("/log/logs")
+	auditGroup := r.Group("/audit/entries")
 	{
-		logGroup.GET("", h.GetLogs)
-		logGroup.GET("/filter", h.FilterLogs)
+		auditGroup.GET("", h.GetLogs)
+		auditGroup.GET("/filter", h.FilterLogs)
 	}
 
 	return r
