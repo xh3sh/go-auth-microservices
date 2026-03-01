@@ -1,0 +1,13 @@
+{{ define "auth-session" }}
+<form hx-post="/auth/session/create" hx-target="#auth-result" class="form-container">
+    <div class="form-group">
+        <label for="session-username">Имя пользователя</label>
+        <input type="text" id="session-username" name="username" required placeholder="Введите имя пользователя">
+    </div>
+    <div class="form-group">
+        <label for="session-password">Пароль</label>
+        <input type="password" id="session-password" name="password" required placeholder="••••••••">
+    </div>
+    <button type="submit" class="btn-submit">Создать сессию</button>
+</form>
+{{ end }}

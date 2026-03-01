@@ -1,0 +1,31 @@
+{{ define "api-user-get" }}
+<div x-show="activeApiTab === 'get'" x-data="apiUserGet">
+    <form @submit.prevent="fetchUser()">
+        <div class="form-group">
+            <label>User ID</label>
+            <input type="text" name="user_id" placeholder="Введите ID пользователя" required>
+        </div>
+        <button type="submit" class="btn-submit" :disabled="loading">
+            <span x-show="!loading">Получить данные пользователя</span>
+            <span x-show="loading">Загрузка...</span>
+        </button>
+    </form>
+
+    <template x-if="user">
+        <div class="ui-cards-container" style="margin-top: 20px;">
+            <div class="ui-card card-user">
+                <div class="ui-card-header">
+                    <span class="ui-card-title" x-text="user.username"></span>
+                    <span class="ui-card-badge">User</span>
+                </div>
+                <div class="ui-card-body">
+                    <div class="ui-field">
+                        <span class="ui-field-label">ID</span>
+                        <span class="ui-field-value" x-text="user.id"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+</div>
+{{ end }}

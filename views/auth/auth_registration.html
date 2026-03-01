@@ -1,0 +1,13 @@
+{{ define "auth-registration" }}
+<form hx-post="/auth/registration" hx-swap="none" class="form-container">
+    <div class="form-group">
+        <label for="reg-username">Имя пользователя</label>
+        <input type="text" id="reg-username" name="username" required placeholder="Введите имя пользователя">
+    </div>
+    <div class="form-group">
+        <label for="reg-password">Пароль</label>
+        <input type="password" id="reg-password" name="password" required placeholder="••••••••">
+    </div>
+    <button type="submit" class="btn-submit">Зарегистрироваться</button>
+</form>
+{{ end }}

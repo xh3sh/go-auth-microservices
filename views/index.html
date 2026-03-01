@@ -1,0 +1,41 @@
+{{ define "index" }}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Микросервис авторизации</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon/favicon.png">
+    <link rel="stylesheet" type="text/css" href="/static/css/index.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/auth.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/forms.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/notifications.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/oauth.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/logs.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/ui-cards.css">
+    
+    <!-- Scripts -->
+    <script src="https://unpkg.com/htmx.org@1.9.12/dist/htmx.min.js"></script>
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/auth.js"></script>
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/logs.js"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+</head>
+<body translate="no" x-cloak x-data="notificationSystem" @notify.window="addNotification($event.detail.message, $event.detail.type)">
+
+    <!-- Global Notification Toasts -->
+    <div class="notification-container">
+        <template x-for="notification in notifications" :key="notification.id">
+            <div class="notification" :class="notification.type" x-transition>
+                <span x-text="notification.message"></span>
+                <button @click="notifications = notifications.filter(n => n.id !== notification.id)">&times;</button>
+            </div>
+        </template>
+    </div>
+
+    {{ template "main" . }}
+
+</body>
+</html>
+{{ end }}

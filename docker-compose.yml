@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  auth-service:
+    build:
+      context: .
+      args:
+        SERVICE_PATH: auth-service
+    container_name: go-auth-service
+    env_file:
+      - .env
+    networks:
+      - projects-network
+    restart: unless-stopped
+
+  user-service:
+    build:
+      context: .
+      args:
+        SERVICE_PATH: user-service
+    container_name: go-user-service
+    env_file:
+      - .env
+    networks:
+      - projects-network
+    restart: unless-stopped
+
+  log-consumer:
+    build:
+      context: .
+      args:
+        SERVICE_PATH: log-consumer
+    container_name: go-log-consumer
+    env_file:
+      - .env
+    networks:
+      - projects-network
+    restart: unless-stopped
+
+  frontend-service:
+    build:
+      context: .
+      args:
+        SERVICE_PATH: frontend
+    container_name: go-frontend-service
+    env_file:
+      - .env
+    networks:
+      - projects-network
+    restart: unless-stopped
+
+  api-gateway:
+    build:
+      context: .
+      args:
+        SERVICE_PATH: api-gateway
+    container_name: go-api-gateway
+    ports:
+      - "${API_GATEWAY_PORT:-8080}:${API_GATEWAY_PORT:-8080}"
+    env_file:
+      - .env
+    networks:
+      - projects-network
+    depends_on:
+      - auth-service
+      - user-service
+      - log-consumer
+      - frontend-service
+    restart: unless-stopped
+
+networks:
+  projects-network:
+    external: true

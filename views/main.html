@@ -1,0 +1,110 @@
+{{ define "main" }}
+<div class="auth-container" x-data="authHandler"
+@htmx:after-request="
+    if ($event.detail.successful) {
+        // Обновляем статус только если запрос был направлен в auth-result
+        if ($event.detail.target.id === 'auth-result') {
+            updateAuthStatus();
+            $dispatch('notify', { message: 'Операция выполнена успешно', type: 'success' });
+        }
+    } else {
+        // Ошибки показываем для всех запросов
+        let errorMsg = 'Произошла ошибка';
+        try {
+            const response = JSON.parse($event.detail.xhr.response);
+            errorMsg = response.error || errorMsg;
+        } catch(e) {}
+        $dispatch('notify', { message: errorMsg, type: 'error' });
+    }
+">
+    <!-- Main Mode Toggle -->
+    <div class="main-mode-toggle">
+        <button class="mode-btn" :class="{ 'active': mainMode === 'auth' }" @click="mainMode = 'auth'">Auth</button>
+        <button class="mode-btn" :class="{ 'active': mainMode === 'api' }" @click="mainMode = 'api'">API</button>
+        <button class="mode-btn" :class="{ 'active': mainMode === 'logs' }" @click="mainMode = 'logs'">Logs</button>
+    </div>
+
+    <!-- AUTH MODE -->
+    <div x-show="mainMode === 'auth'">
+        <div class="auth-tabs">
+            <button class="tab-btn" :class="{ 'active': activeTab === 'registration' }" @click="activeTab = 'registration'">Регистрация</button>
+            <button class="tab-btn" :class="{ 'active': activeTab === 'jwt' }" @click="activeTab = 'jwt'">JWT</button>
+            <button class="tab-btn" :class="{ 'active': activeTab === 'basic' }" @click="activeTab = 'basic'">Basic</button>
+            <button class="tab-btn" :class="{ 'active': activeTab === 'session' }" @click="activeTab = 'session'">Session</button>
+            <button class="tab-btn" :class="{ 'active': activeTab === 'apikey' }" @click="activeTab = 'apikey'">API Key</button>
+            <button class="tab-btn" :class="{ 'active': activeTab === 'oauth' }" @click="activeTab = 'oauth'">OAuth 2.0</button>
+        </div>
+
+        <div class="auth-forms">
+            <div class="auth-form" :class="{ 'active': activeTab === 'registration' }" x-show="activeTab === 'registration'">
+                {{ template "auth-registration" . }}
+            </div>
+            
+            <div class="auth-form" :class="{ 'active': activeTab === 'jwt' }" x-show="activeTab === 'jwt'">
+                <div class="auth-status-badge" :class="isJwtAuth ? 'authorized' : 'unauthorized'">
+                    <span class="status-dot"></span>
+                    <span x-text="isJwtAuth ? 'JWT Авторизован' : 'JWT Не авторизован'"></span>
+                </div>
+                {{ template "auth-jwt" . }}
+            </div>
+
+            <div class="auth-form" :class="{ 'active': activeTab === 'basic' }" x-show="activeTab === 'basic'">
+                <div class="auth-status-badge" :class="isBasicAuth ? 'authorized' : 'unauthorized'">
+                    <span class="status-dot"></span>
+                    <span x-text="isBasicAuth ? 'Basic (Bearer) Авторизован' : 'Basic Не авторизован'"></span>
+                </div>
+                {{ template "auth-basic" . }}
+            </div>
+
+            <div class="auth-form" :class="{ 'active': activeTab === 'session' }" x-show="activeTab === 'session'">
+                <div class="auth-status-badge" :class="isSessionAuth ? 'authorized' : 'unauthorized'">
+                    <span class="status-dot"></span>
+                    <span x-text="isSessionAuth ? 'Сессия Активна' : 'Сессия отсутствует'"></span>
+                </div>
+                {{ template "auth-session" . }}
+            </div>
+
+            <div class="auth-form" :class="{ 'active': activeTab === 'apikey' }" x-show="activeTab === 'apikey'">
+                <div class="auth-status-badge" :class="isApiKeyAuth ? 'authorized' : 'unauthorized'">
+                    <span class="status-dot"></span>
+                    <span x-text="isApiKeyAuth ? 'API Key Сохранен' : 'API Key не установлен'"></span>
+                </div>
+                {{ template "auth-apikey" . }}
+            </div>
+
+            <div class="auth-form" :class="{ 'active': activeTab === 'oauth' }" x-show="activeTab === 'oauth'">
+                <div class="auth-status-badge" :class="isOAuthAuth ? 'authorized' : 'unauthorized'">
+                    <span class="status-dot"></span>
+                    <span x-text="isOAuthAuth ? 'OAuth Авторизован' : 'OAuth Не авторизован'"></span>
+                </div>
+                {{ template "auth-oauth" . }}
+            </div>
+
+            <button class="logout-btn" @click="logout()" style="width: 100%; margin-top: 20px;" x-show="activeTab !== 'registration'">
+                Выйти
+            </button>
+            <div id="auth-result"></div>
+        </div>
+    </div>
+
+    <!-- API MODE (User API) -->
+    <div x-show="mainMode === 'api'">
+        <div class="auth-tabs">
+            <button class="tab-btn" :class="{ 'active': activeApiTab === 'list' }" @click="activeApiTab = 'list'">Все пользователи</button>
+            <button class="tab-btn" :class="{ 'active': activeApiTab === 'get' }" @click="activeApiTab = 'get'">Поиск по ID</button>
+        </div>
+
+        <div class="api-forms" style="margin-top: 20px;">
+            {{ template "api-user-list" . }}
+            {{ template "api-user-get" . }}
+        </div>
+    </div>
+
+    <!-- LOGS MODE -->
+    <div x-show="mainMode === 'logs'">
+        <div class="log-forms" style="margin-top: 20px;">
+            {{ template "log-list" . }}
+        </div>
+    </div>
+</div>
+{{ end }}

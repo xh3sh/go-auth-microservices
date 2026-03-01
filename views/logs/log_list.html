@@ -1,0 +1,74 @@
+{{ define "log-list" }}
+<div x-data="logViewer">
+    <div class="log-tabs" style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <button class="tab-btn" :class="{ 'active': activeLogTab === 'all' }" @click="activeLogTab = 'all'">Все логи</button>
+        <button class="tab-btn" :class="{ 'active': activeLogTab === 'filter' }" @click="activeLogTab = 'filter'">Фильтрация</button>
+    </div>
+
+    <!-- Все логи -->
+    <div x-show="activeLogTab === 'all'">
+        <button class="btn-submit" 
+                @click="fetchLogs('/log/logs?page_size=50')"
+                :disabled="loading"
+                style="background: #e67e22; border-color: #d35400;">
+            <span x-show="!loading">Запросить последние 50 логов</span>
+            <span x-show="loading">Загрузка...</span>
+        </button>
+    </div>
+
+    <!-- Фильтрация -->
+    <div x-show="activeLogTab === 'filter'">
+        <form @submit.prevent="applyFilters($event)" class="form-container">
+            <div class="form-group">
+                <label>User ID</label>
+                <input type="text" name="user_id" placeholder="Все пользователи (пусто или 0)">
+            </div>
+            <div class="form-group">
+                <label>Сервис</label>
+                <select name="service">
+                    <option value="">Все сервисы</option>
+                    <option value="auth">Auth</option>
+                    <option value="gateway">Gateway</option>
+                    <option value="user">User</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Тип события</label>
+                <input type="text" name="type" placeholder="Напр. auth.login">
+            </div>
+            <button type="submit" class="btn-submit" :disabled="loading" style="background: #d35400;">
+                <span x-show="!loading">Применить фильтры</span>
+                <span x-show="loading">Загрузка...</span>
+            </button>
+        </form>
+    </div>
+
+    <!-- Результаты (Рендеринг логов через Alpine) -->
+    <div id="log-result" style="margin-top: 20px;">
+        <div class="log-cards">
+            <template x-for="log in logs" :key="log.timestamp + log.type">
+                <div class="log-card" :class="'service-' + log.service">
+                    <div class="log-card-header">
+                        <span class="log-type" x-text="log.type"></span>
+                        <span class="log-service-badge" x-text="log.service"></span>
+                    </div>
+                    <div class="log-card-body">
+                        <div class="log-info-item">
+                            <span class="log-info-label">User ID:</span>
+                            <span class="log-info-value" x-text="log.user_id || '—'"></span>
+                        </div>
+                        <pre class="log-data" x-text="log.formattedData" style="white-space: pre-wrap; font-family: monospace; font-size: 0.85rem; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 4px; color: #ecf0f1;"></pre>
+                    </div>
+                    <div class="log-timestamp" x-text="log.displayDate"></div>
+                </div>
+            </template>
+            
+            <template x-if="logs.length === 0 && !loading">
+                <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #95a5a6; background: #2c3e50; border-radius: 8px;">
+                    Логи не найдены
+                </div>
+            </template>
+        </div>
+    </div>
+</div>
+{{ end }}

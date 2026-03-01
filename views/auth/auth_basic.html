@@ -1,0 +1,18 @@
+{{ define "auth-basic" }}
+<div class="form-container">
+    <div class="form-group">
+        <label for="basic-username">Имя пользователя</label>
+        <input type="text" id="basic-username" name="username" placeholder="Введите имя пользователя">
+    </div>
+    <div class="form-group">
+        <label for="basic-password">Пароль</label>
+        <input type="password" id="basic-password" name="password" placeholder="••••••••">
+    </div>
+    <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 10px;">
+        Basic Auth будет автоматически добавляться к запросам, если поля заполнены.
+    </p>
+    <button type="button" class="btn-submit" @click="updateAuthStatus()">
+        Проверить статус (Basic)
+    </button>
+</div>
+{{ end }}

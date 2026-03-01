@@ -1,0 +1,13 @@
+{{ define "auth-jwt" }}
+<form hx-post="/auth/jwt/login" hx-target="#auth-result" class="form-container">
+    <div class="form-group">
+        <label for="jwt-username">Имя пользователя</label>
+        <input type="text" id="jwt-username" name="username" required placeholder="Введите имя пользователя">
+    </div>
+    <div class="form-group">
+        <label for="jwt-password">Пароль</label>
+        <input type="password" id="jwt-password" name="password" required placeholder="••••••••">
+    </div>
+    <button type="submit" class="btn-submit">Войти с JWT</button>
+</form>
+{{ end }}

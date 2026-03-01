@@ -1,0 +1,9 @@
+{{ define "auth-oauth" }}
+<div class="oauth-buttons">
+    <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 15px;">Выберите сервис для авторизации:</p>
+    <a href="/auth/oauth/authorize?provider=google" class="oauth-btn">
+        <img src="/static/img/link-icon.svg" alt="Google" width="20">
+        Войти через Google
+    </a>
+</div>
+{{ end }}

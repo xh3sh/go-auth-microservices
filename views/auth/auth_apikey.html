@@ -1,0 +1,29 @@
+{{ define "auth-apikey" }}
+<div class="apikey-actions">
+    <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 15px;">API Key используется для программного доступа к API.</p>
+    <form hx-post="/auth/apikey/generate" hx-target="#auth-result" class="form-container">
+        <div class="form-group">
+            <label for="ak-username">Имя пользователя</label>
+            <input type="text" id="ak-username" name="username" required placeholder="Введите имя пользователя">
+        </div>
+        <div class="form-group">
+            <label for="ak-password">Пароль</label>
+            <input type="password" id="ak-password" name="password" required placeholder="••••••••">
+        </div>
+        <div class="form-group">
+            <label for="ak-name">Название ключа</label>
+            <input type="text" id="ak-name" name="name" placeholder="Напр. Мой API Ключ">
+        </div>
+        <button type="submit" class="btn-submit">Сгенерировать новый API Key</button>
+    </form>
+    <div style="margin-top: 20px;">
+        <form hx-post="/auth/apikey/validate" hx-target="#auth-result">
+            <div class="form-group">
+                <label for="apikey-input">API Key</label>
+                <input type="text" id="apikey-input" name="key" placeholder="Введите ваш API Key (format: ID.Secret)">
+            </div>
+            <button type="submit" class="btn-submit" style="background: transparent; border: 1px solid #6e57e0;">Валидация</button>
+        </form>
+    </div>
+</div>
+{{ end }}
