@@ -13,7 +13,6 @@ import (
 	"github.com/xh3sh/go-auth-microservices/internal/handler"
 	"github.com/xh3sh/go-auth-microservices/internal/router"
 	"github.com/xh3sh/go-auth-microservices/internal/utils"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 )
 
 func main() {
@@ -21,7 +20,6 @@ func main() {
 	tp := utils.InitTracer()
 	h := handler.NewHandler(nil, nil, nil, nil, nil, nil, cfg)
 	r := router.NewFrontendRouter(h)
-	r.Use(otelgin.Middleware("frontend-service"))
 
 	log.Printf("Frontend starting on %s:%s", cfg.FrontendHost, cfg.FrontendPort)
 

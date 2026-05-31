@@ -16,7 +16,6 @@ import (
 	"github.com/xh3sh/go-auth-microservices/internal/repository"
 	"github.com/xh3sh/go-auth-microservices/internal/router"
 	"github.com/xh3sh/go-auth-microservices/internal/utils"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 )
 
 func main() {
@@ -64,7 +63,6 @@ func main() {
 	authMid := middleware.NewAuthMiddleware(jwtService, apiKeyService, sessionService, repo, eventRepo)
 
 	r := router.NewAuthRouter(h, authMid)
-	r.Use(otelgin.Middleware("auth-service"))
 	addr := cfg.AuthServiceHost + ":" + cfg.AuthServicePort
 	srv := &http.Server{
 		Addr:    addr,

@@ -54,7 +54,7 @@ func (m *AuthMiddleware) UniversalAuth() gin.HandlerFunc {
 				c.Request.Header.Set("X-User-ID", claims.UserID)
 				c.Request.Header.Set("X-Auth-Method", "jwt")
 
-				m.publishValidation(claims.UserID, "jwt", true, "")
+				m.publishValidation(claims.UserID, "jwt", true, "", utils.GetTraceID(c.Request.Context()))
 
 				c.Next()
 				return
@@ -71,7 +71,7 @@ func (m *AuthMiddleware) UniversalAuth() gin.HandlerFunc {
 				c.Request.Header.Set("X-User-ID", claims.UserID)
 				c.Request.Header.Set("X-Auth-Method", "oauth")
 
-				m.publishValidation(claims.UserID, "oauth", true, "")
+				m.publishValidation(claims.UserID, "oauth", true, "", utils.GetTraceID(c.Request.Context()))
 
 				c.Next()
 				return
@@ -94,7 +94,7 @@ func (m *AuthMiddleware) UniversalAuth() gin.HandlerFunc {
 				c.Request.Header.Set("X-User-ID", apiKey.UserID)
 				c.Request.Header.Set("X-Auth-Method", "api_key")
 
-				m.publishValidation(apiKey.UserID, "api_key", true, "")
+				m.publishValidation(apiKey.UserID, "api_key", true, "", utils.GetTraceID(c.Request.Context()))
 
 				c.Next()
 				return
@@ -115,7 +115,7 @@ func (m *AuthMiddleware) UniversalAuth() gin.HandlerFunc {
 				c.Request.Header.Set("X-User-ID", session.UserID)
 				c.Request.Header.Set("X-Auth-Method", "session")
 
-				m.publishValidation(session.UserID, "session", true, "")
+				m.publishValidation(session.UserID, "session", true, "", utils.GetTraceID(c.Request.Context()))
 
 				c.Next()
 				return
@@ -132,14 +132,14 @@ func (m *AuthMiddleware) UniversalAuth() gin.HandlerFunc {
 				c.Request.Header.Set("X-User-ID", creds.ID)
 				c.Request.Header.Set("X-Auth-Method", "basic")
 
-				m.publishValidation(creds.ID, "basic", true, "")
+				m.publishValidation(creds.ID, "basic", true, "", utils.GetTraceID(c.Request.Context()))
 
 				c.Next()
 				return
 			}
 		}
 
-		m.publishValidation("", "universal", false, "all auth methods failed")
+		m.publishValidation("", "universal", false, "all auth methods failed", utils.GetTraceID(c.Request.Context()))
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
 		c.Abort()
 	}
@@ -166,7 +166,7 @@ func (m *AuthMiddleware) JWTAuth() gin.HandlerFunc {
 
 		claims, err := m.jwtService.ExtractClaims(token)
 		if err != nil {
-			m.publishValidation("", "jwt", false, "invalid or expired token")
+			m.publishValidation("", "jwt", false, "invalid or expired token", utils.GetTraceID(c.Request.Context()))
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
 			c.Abort()
 			return
@@ -177,7 +177,7 @@ func (m *AuthMiddleware) JWTAuth() gin.HandlerFunc {
 		c.Set("jwt_claims", claims)
 		c.Request.Header.Set("X-User-ID", claims.UserID)
 		c.Request.Header.Set("X-Auth-Method", "jwt")
-		m.publishValidation(claims.UserID, "jwt", true, "")
+		m.publishValidation(claims.UserID, "jwt", true, "", utils.GetTraceID(c.Request.Context()))
 
 		c.Next()
 	}
@@ -195,7 +195,7 @@ func (m *AuthMiddleware) OAuthAuth() gin.HandlerFunc {
 
 		claims, err := m.jwtService.ExtractClaims(oauthToken)
 		if err != nil {
-			m.publishValidation("", "oauth", false, "invalid or expired oauth token")
+			m.publishValidation("", "oauth", false, "invalid or expired oauth token", utils.GetTraceID(c.Request.Context()))
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired OAuth token"})
 			c.Abort()
 			return
@@ -206,7 +206,7 @@ func (m *AuthMiddleware) OAuthAuth() gin.HandlerFunc {
 		c.Set("jwt_claims", claims)
 		c.Request.Header.Set("X-User-ID", claims.UserID)
 		c.Request.Header.Set("X-Auth-Method", "oauth")
-		m.publishValidation(claims.UserID, "oauth", true, "")
+		m.publishValidation(claims.UserID, "oauth", true, "", utils.GetTraceID(c.Request.Context()))
 
 		c.Next()
 	}
@@ -224,7 +224,7 @@ func (m *AuthMiddleware) BasicAuth() gin.HandlerFunc {
 
 		creds, err := m.repo.GetUserByUsername(c.Request.Context(), username)
 		if err != nil || !utils.CheckPasswordHash(password, creds.PasswordHash) {
-			m.publishValidation("", "basic", false, "invalid credentials")
+			m.publishValidation("", "basic", false, "invalid credentials", utils.GetTraceID(c.Request.Context()))
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 			c.Abort()
 			return
@@ -234,13 +234,13 @@ func (m *AuthMiddleware) BasicAuth() gin.HandlerFunc {
 		c.Set("auth_method", "basic")
 		c.Request.Header.Set("X-User-ID", creds.ID)
 		c.Request.Header.Set("X-Auth-Method", "basic")
-		m.publishValidation(creds.ID, "basic", true, "")
+		m.publishValidation(creds.ID, "basic", true, "", utils.GetTraceID(c.Request.Context()))
 
 		c.Next()
 	}
 }
 
-func (m *AuthMiddleware) publishValidation(userID, method string, isValid bool, reason string) {
+func (m *AuthMiddleware) publishValidation(userID, method string, isValid bool, reason string, traceID string) {
 	if m.eventRepo == nil {
 		return
 	}
@@ -249,6 +249,7 @@ func (m *AuthMiddleware) publishValidation(userID, method string, isValid bool, 
 		UserID:       userID,
 		AuthMethod:   method,
 		IsValid:      isValid,
+		TraceID:      traceID,
 		ErrorMessage: reason,
 		Timestamp:    time.Now(),
 	})
@@ -267,7 +268,7 @@ func (m *AuthMiddleware) APIKeyAuth() gin.HandlerFunc {
 
 		apiKey, err := m.apiKeyService.ValidateAPIKey(keyVal)
 		if err != nil {
-			m.publishValidation("", "api_key", false, "invalid api key")
+			m.publishValidation("", "api_key", false, "invalid api key", utils.GetTraceID(c.Request.Context()))
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid API Key"})
 			c.Abort()
 			return
@@ -278,7 +279,7 @@ func (m *AuthMiddleware) APIKeyAuth() gin.HandlerFunc {
 		c.Set("api_key_data", apiKey)
 		c.Request.Header.Set("X-User-ID", apiKey.UserID)
 		c.Request.Header.Set("X-Auth-Method", "api_key")
-		m.publishValidation(apiKey.UserID, "api_key", true, "")
+		m.publishValidation(apiKey.UserID, "api_key", true, "", utils.GetTraceID(c.Request.Context()))
 
 		c.Next()
 	}
@@ -300,7 +301,7 @@ func (m *AuthMiddleware) SessionAuth() gin.HandlerFunc {
 
 		session, err := m.sessionService.ValidateSession(c.Request.Context(), sessionID)
 		if err != nil {
-			m.publishValidation("", "session", false, "invalid or expired session")
+			m.publishValidation("", "session", false, "invalid or expired session", utils.GetTraceID(c.Request.Context()))
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired session"})
 			c.Abort()
 			return
@@ -311,7 +312,7 @@ func (m *AuthMiddleware) SessionAuth() gin.HandlerFunc {
 		c.Set("session_data", session)
 		c.Request.Header.Set("X-User-ID", session.UserID)
 		c.Request.Header.Set("X-Auth-Method", "session")
-		m.publishValidation(session.UserID, "session", true, "")
+		m.publishValidation(session.UserID, "session", true, "", utils.GetTraceID(c.Request.Context()))
 
 		c.Next()
 	}

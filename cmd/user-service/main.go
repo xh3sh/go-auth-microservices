@@ -46,10 +46,10 @@ func main() {
 	}
 
 	r := gin.Default()
+	r.Use(otelgin.Middleware("user-service"))
 
 	userHandler := handler.NewUserHandler(repo, eventRepo)
 	router.SetupUserRoutes(r, userHandler)
-	r.Use(otelgin.Middleware("user-service"))
 
 	addr := "0.0.0.0:" + cfg.UserServicePort
 	log.Printf("User Service starting on %s", addr)

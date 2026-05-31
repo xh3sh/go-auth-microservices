@@ -3,6 +3,7 @@ package router
 import (
 	"github.com/xh3sh/go-auth-microservices/internal/handler"
 	"github.com/xh3sh/go-auth-microservices/internal/middleware"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,6 +12,7 @@ import (
 func NewAuthRouter(h *handler.Handler, authMid *middleware.AuthMiddleware) *gin.Engine {
 	r := gin.Default()
 
+	r.Use(otelgin.Middleware("auth-service"))
 	r.Use(middleware.APILogger(h.GetEventRepo()))
 
 	authGroup := r.Group("/auth")

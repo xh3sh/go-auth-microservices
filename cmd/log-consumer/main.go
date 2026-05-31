@@ -15,7 +15,6 @@ import (
 	"github.com/xh3sh/go-auth-microservices/internal/repository"
 	"github.com/xh3sh/go-auth-microservices/internal/router"
 	"github.com/xh3sh/go-auth-microservices/internal/utils"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 )
 
 func main() {
@@ -53,7 +52,6 @@ func main() {
 
 	h := handler.NewHandler(nil, nil, nil, nil, repo, eventRepo, cfg)
 	r := router.NewLogRouter(h)
-	r.Use(otelgin.Middleware("log-service"))
 
 	addr := cfg.LogConsumerHost + ":" + cfg.LogConsumerPort
 	srv := &http.Server{
