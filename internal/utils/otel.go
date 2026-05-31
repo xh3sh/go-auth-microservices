@@ -10,7 +10,9 @@ import (
 )
 
 func InitTracer() *sdktrace.TracerProvider {
-	tp := sdktrace.NewTracerProvider()
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithSampler(sdktrace.AlwaysSample()),
+	)
 
 	otel.SetTracerProvider(tp)
 
