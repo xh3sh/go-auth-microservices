@@ -17,11 +17,8 @@ func Logging() gin.HandlerFunc {
 	return gin.Logger()
 }
 
-// APILogger логирует API запросы и отправляет события в репозиторий событий
 func APILogger(eventRepo repository.EventRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		traceID := utils.GetTraceID(c.Request.Context())
-
 		c.Next()
 
 		if eventRepo == nil || c.Request.Method == "OPTIONS" {
@@ -37,6 +34,8 @@ func APILogger(eventRepo repository.EventRepository) gin.HandlerFunc {
 		if !strings.HasPrefix(path, "/api") && !strings.HasPrefix(path, "/auth") {
 			return
 		}
+
+		traceID := utils.GetTraceID(c.Request.Context())
 
 		userIDRaw, _ := c.Get("user_id")
 		userID, _ := userIDRaw.(string)

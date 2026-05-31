@@ -2,8 +2,10 @@
 
 .PHONY: default git-pull build-all up down restart logs ps deploy
 
-# По умолчанию обновляем код и собираем всё
+# По умолчанию обновляем код, собираем всё и перезапускаем контейнеры
 default: git-pull build-all
+	@echo "--- Restarting containers with new images ---"
+	docker compose up -d
 
 # Обновление кода из репозитория
 git-pull:
