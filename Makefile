@@ -1,9 +1,13 @@
 # Makefile для последовательной сборки и запуска микросервисов
 
-.PHONY: default build-all up down restart logs ps
+.PHONY: default git-pull build-all up down restart logs ps deploy
 
-# По умолчанию запускаем последовательную сборку всех сервисов
-default: build-all
+# По умолчанию обновляем код и собираем всё
+default: git-pull build-all
+
+# Обновление кода из репозитория
+git-pull:
+	git pull
 
 # Сборка сервисов по одному (no-parallel)
 build-all:
