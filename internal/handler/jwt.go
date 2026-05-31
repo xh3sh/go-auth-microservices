@@ -36,10 +36,11 @@ func (h *Handler) HandleJWTLogin(c *gin.Context) {
 		return
 	}
 
+	traceID := utils.GetTraceID(c.Request.Context())
 	authEvent := models.AuthEvent{
 		UserID:    creds.ID,
 		EventType: "jwt_login",
-		TraceID:   utils.GetTraceID(c.Request.Context()),
+		TraceID:   traceID,
 		Timestamp: time.Now(),
 	}
 	if h.eventRepo != nil {

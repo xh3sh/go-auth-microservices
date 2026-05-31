@@ -7,7 +7,7 @@ import (
 
 	"github.com/xh3sh/go-auth-microservices/internal/models"
 	"github.com/xh3sh/go-auth-microservices/internal/repository"
-	"go.opentelemetry.io/otel/trace"
+	"github.com/xh3sh/go-auth-microservices/internal/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,6 +20,8 @@ func Logging() gin.HandlerFunc {
 // APILogger логирует API запросы и отправляет события в репозиторий событий
 func APILogger(eventRepo repository.EventRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		traceID := utils.GetTraceID(c.Request.Context())
+
 		c.Next()
 
 		if eventRepo == nil || c.Request.Method == "OPTIONS" {
@@ -49,12 +51,6 @@ func APILogger(eventRepo repository.EventRepository) gin.HandlerFunc {
 			if authMethod == "" {
 				authMethod = "none"
 			}
-		}
-
-		span := trace.SpanFromContext(c.Request.Context())
-		traceID := span.SpanContext().TraceID().String()
-		if traceID == "00000000000000000000000000000000" {
-			traceID = ""
 		}
 
 		event := models.APIGatewayEvent{

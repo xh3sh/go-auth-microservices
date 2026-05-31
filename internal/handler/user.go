@@ -38,12 +38,13 @@ func (h *UserHandler) GetUsers(c *gin.Context) {
 
 	if h.eventRepo != nil {
 		userID := c.GetHeader("X-User-ID")
+		traceID := utils.GetTraceID(c.Request.Context())
 
 		go h.eventRepo.PublishUserActionEvent(models.UserActionEvent{
 			UserID:    userID,
 			Action:    constants.ActionUserListViewed,
 			Resource:  constants.ResourceUsers,
-			TraceID:   utils.GetTraceID(c.Request.Context()),
+			TraceID:   traceID,
 			Timestamp: time.Now(),
 			Status:    constants.StatusSuccess,
 		})
@@ -63,13 +64,14 @@ func (h *UserHandler) GetUserByID(c *gin.Context) {
 
 	if h.eventRepo != nil {
 		viewerID := c.GetHeader("X-User-ID")
+		traceID := utils.GetTraceID(c.Request.Context())
 
 		go h.eventRepo.PublishUserActionEvent(models.UserActionEvent{
 			UserID:     viewerID,
 			Action:     constants.ActionUserProfileViewed,
 			Resource:   constants.ResourceUser,
 			ResourceID: id,
-			TraceID:    utils.GetTraceID(c.Request.Context()),
+			TraceID:    traceID,
 			Timestamp:  time.Now(),
 			Status:     constants.StatusSuccess,
 			Metadata: map[string]interface{}{
@@ -91,13 +93,14 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 
 	if h.eventRepo != nil {
 		userID := c.GetHeader("X-User-ID")
+		traceID := utils.GetTraceID(c.Request.Context())
 
 		go h.eventRepo.PublishUserActionEvent(models.UserActionEvent{
 			UserID:     userID,
 			Action:     constants.ActionUserDeleted,
 			Resource:   constants.ResourceUser,
 			ResourceID: id,
-			TraceID:    utils.GetTraceID(c.Request.Context()),
+			TraceID:    traceID,
 			Timestamp:  time.Now(),
 			Status:     constants.StatusSuccess,
 		})

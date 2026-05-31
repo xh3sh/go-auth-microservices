@@ -37,10 +37,11 @@ func (h *Handler) HandleCreateSession(c *gin.Context) {
 		return
 	}
 
+	traceID := utils.GetTraceID(c.Request.Context())
 	authEvent := models.AuthEvent{
 		UserID:    session.UserID,
 		EventType: "session_created",
-		TraceID:   utils.GetTraceID(c.Request.Context()),
+		TraceID:   traceID,
 		Timestamp: time.Now(),
 	}
 	if h.eventRepo != nil {
