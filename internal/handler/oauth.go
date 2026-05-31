@@ -21,7 +21,7 @@ func generateState() string {
 	return base64.URLEncoding.EncodeToString(b)
 }
 
-// HandleOAuthToken РѕР±СЂР°Р±Р°С‚С‹РІР°РµС‚ Р·Р°РїСЂРѕСЃ РЅР° РїРѕР»СѓС‡РµРЅРёРµ С‚РѕРєРµРЅР° OAuth
+// HandleOAuthToken обрабатывает запрос на получение токена OAuth
 func (h *Handler) HandleOAuthToken(c *gin.Context) {
 	var req models.OAuthTokenRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -51,7 +51,7 @@ func (h *Handler) HandleOAuthToken(c *gin.Context) {
 	}
 }
 
-// HandleOAuthValidate РїСЂРѕРІРµСЂСЏРµС‚ РІР°Р»РёРґРЅРѕСЃС‚СЊ OAuth СЃРµСЃСЃРёРё
+// HandleOAuthValidate проверяет валидность OAuth сессии
 func (h *Handler) HandleOAuthValidate(c *gin.Context) {
 	token, err := c.Cookie("oauth_access_token")
 	if err != nil {
@@ -80,7 +80,7 @@ func (h *Handler) HandleOAuthValidate(c *gin.Context) {
 	})
 }
 
-// HandleOAuthLogout Р·Р°РІРµСЂС€Р°РµС‚ OAuth СЃРµСЃСЃРёСЋ
+// HandleOAuthLogout завершает OAuth сессию
 func (h *Handler) HandleOAuthLogout(c *gin.Context) {
 	if token, err := c.Cookie("oauth_access_token"); err == nil && token != "" {
 		if claims, err := h.jwtService.ExtractClaims(token); err == nil {
@@ -95,7 +95,7 @@ func (h *Handler) HandleOAuthLogout(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "OAuth session cleared"})
 }
 
-// HandleOAuthAuthorize РёРЅРёС†РёРёСЂСѓРµС‚ РїСЂРѕС†РµСЃСЃ Р°РІС‚РѕСЂРёР·Р°С†РёРё С‡РµСЂРµР· РІРЅРµС€РЅРµРіРѕ РїСЂРѕРІР°Р№РґРµСЂР°
+// HandleOAuthAuthorize инициирует процесс авторизации через внешнего провайдера
 func (h *Handler) HandleOAuthAuthorize(c *gin.Context) {
 	provider := c.Query("provider")
 	if provider == "google" {
@@ -138,7 +138,7 @@ func (h *Handler) HandleOAuthAuthorize(c *gin.Context) {
 	c.Redirect(http.StatusFound, target)
 }
 
-// HandleGoogleCallback РѕР±СЂР°Р±Р°С‚С‹РІР°РµС‚ РѕС‚РІРµС‚ РѕС‚ Google OAuth
+// HandleGoogleCallback обрабатывает ответ от Google OAuth
 func (h *Handler) HandleGoogleCallback(c *gin.Context) {
 	state := c.Query("state")
 	cookieState, err := c.Cookie("oauth_state")

@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// HandleCreateSession СЃРѕР·РґР°РµС‚ РЅРѕРІСѓСЋ СЃРµСЃСЃРёСЋ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
+// HandleCreateSession создает новую сессию пользователя
 func (h *Handler) HandleCreateSession(c *gin.Context) {
 	var req models.LoginRequest
 	if err := c.ShouldBind(&req); err != nil {
@@ -40,6 +40,7 @@ func (h *Handler) HandleCreateSession(c *gin.Context) {
 	authEvent := models.AuthEvent{
 		UserID:    session.UserID,
 		EventType: "session_created",
+		TraceID:   utils.GetTraceID(c.Request.Context()),
 		Timestamp: time.Now(),
 	}
 	if h.eventRepo != nil {
@@ -54,7 +55,7 @@ func (h *Handler) HandleCreateSession(c *gin.Context) {
 	c.JSON(http.StatusOK, session)
 }
 
-// HandleValidateSession РїСЂРѕРІРµСЂСЏРµС‚ РІР°Р»РёРґРЅРѕСЃС‚СЊ С‚РµРєСѓС‰РµР№ СЃРµСЃСЃРёРё
+// HandleValidateSession проверяет валидность текущей сессии
 func (h *Handler) HandleValidateSession(c *gin.Context) {
 	sessionData, exists := c.Get("session_data")
 	if !exists {
@@ -66,7 +67,7 @@ func (h *Handler) HandleValidateSession(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"valid": true, "user_id": session.UserID})
 }
 
-// HandleRevokeSession РѕС‚Р·С‹РІР°РµС‚ С‚РµРєСѓС‰СѓСЋ СЃРµСЃСЃРёСЋ
+// HandleRevokeSession отзывает текущую сессию
 func (h *Handler) HandleRevokeSession(c *gin.Context) {
 	sessionID := c.GetHeader("X-Session-ID")
 	if len(sessionID) == 0 {

@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// NewTemplates РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ Рё РІРѕР·РІСЂР°С‰Р°РµС‚ С€Р°Р±Р»РѕРЅС‹ РґР»СЏ Gin СЃ РєР°СЃС‚РѕРјРЅС‹РјРё С„СѓРЅРєС†РёСЏРјРё
+// NewTemplates инициализирует и возвращает шаблоны для Gin с кастомными функциями
 func NewTemplates() *template.Template {
 	funcMap := template.FuncMap{
 		"in": func(slice []string, item string) bool {

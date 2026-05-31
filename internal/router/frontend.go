@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// NewFrontendRouter СЃРѕР·РґР°РµС‚ СЂРѕСѓС‚РµСЂ РґР»СЏ С„СЂРѕРЅС‚РµРЅРґ-СЃРµСЂРІРёСЃР°
+// NewFrontendRouter создает роутер для фронтенд-сервиса
 func NewFrontendRouter(h *handler.Handler) *gin.Engine {
 	r := gin.Default()
 

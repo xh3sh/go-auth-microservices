@@ -8,7 +8,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// RedisClient РїСЂРµРґРѕСЃС‚Р°РІР»СЏРµС‚ РѕР±РµСЂС‚РєСѓ РЅР°Рґ РєР»РёРµРЅС‚РѕРј Redis
+// RedisClient предоставляет обертку над клиентом Redis
 type RedisClient struct {
 	client *redis.Client
 }

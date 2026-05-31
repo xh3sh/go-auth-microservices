@@ -7,6 +7,7 @@ import (
 	"github.com/xh3sh/go-auth-microservices/internal/constants"
 	"github.com/xh3sh/go-auth-microservices/internal/models"
 	"github.com/xh3sh/go-auth-microservices/internal/repository"
+	"github.com/xh3sh/go-auth-microservices/internal/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,7 +28,7 @@ func (h *UserHandler) GetEventRepo() repository.EventRepository {
 	return h.eventRepo
 }
 
-// GetUsers РІРѕР·РІСЂР°С‰Р°РµС‚ СЃРїРёСЃРѕРє РІСЃРµС… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№
+// GetUsers возвращает список всех пользователей
 func (h *UserHandler) GetUsers(c *gin.Context) {
 	users, err := h.repo.GetAllUsers(c.Request.Context())
 	if err != nil {
@@ -42,6 +43,7 @@ func (h *UserHandler) GetUsers(c *gin.Context) {
 			UserID:    userID,
 			Action:    constants.ActionUserListViewed,
 			Resource:  constants.ResourceUsers,
+			TraceID:   utils.GetTraceID(c.Request.Context()),
 			Timestamp: time.Now(),
 			Status:    constants.StatusSuccess,
 		})
@@ -50,7 +52,7 @@ func (h *UserHandler) GetUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, users)
 }
 
-// GetUserByID РІРѕР·РІСЂР°С‰Р°РµС‚ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РїРѕР»СЊР·РѕРІР°С‚РµР»Рµ РїРѕ РµРіРѕ ID
+// GetUserByID возвращает информацию о пользователе по его ID
 func (h *UserHandler) GetUserByID(c *gin.Context) {
 	id := c.Param("id")
 	user, err := h.repo.GetUser(c.Request.Context(), id)
@@ -67,6 +69,7 @@ func (h *UserHandler) GetUserByID(c *gin.Context) {
 			Action:     constants.ActionUserProfileViewed,
 			Resource:   constants.ResourceUser,
 			ResourceID: id,
+			TraceID:    utils.GetTraceID(c.Request.Context()),
 			Timestamp:  time.Now(),
 			Status:     constants.StatusSuccess,
 			Metadata: map[string]interface{}{
@@ -78,7 +81,7 @@ func (h *UserHandler) GetUserByID(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
-// DeleteUser СѓРґР°Р»СЏРµС‚ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РїРѕ РµРіРѕ ID
+// DeleteUser удаляет пользователя по его ID
 func (h *UserHandler) DeleteUser(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.repo.DeleteUser(c.Request.Context(), id); err != nil {
@@ -94,6 +97,7 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 			Action:     constants.ActionUserDeleted,
 			Resource:   constants.ResourceUser,
 			ResourceID: id,
+			TraceID:    utils.GetTraceID(c.Request.Context()),
 			Timestamp:  time.Now(),
 			Status:     constants.StatusSuccess,
 		})

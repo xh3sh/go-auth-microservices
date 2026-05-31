@@ -12,7 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// HandleGenerateAPIKey РіРµРЅРµСЂРёСЂСѓРµС‚ РЅРѕРІС‹Р№ API РєР»СЋС‡ РґР»СЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
+// HandleGenerateAPIKey генерирует новый API ключ для пользователя
 func (h *Handler) HandleGenerateAPIKey(c *gin.Context) {
 	var req struct {
 		Username string `json:"username" form:"username"`
@@ -50,7 +50,7 @@ func (h *Handler) HandleGenerateAPIKey(c *gin.Context) {
 	c.JSON(http.StatusOK, apiKey)
 }
 
-// HandleValidateAPIKey РїСЂРѕРІРµСЂСЏРµС‚ РІР°Р»РёРґРЅРѕСЃС‚СЊ API РєР»СЋС‡Р°
+// HandleValidateAPIKey проверяет валидность API ключа
 func (h *Handler) HandleValidateAPIKey(c *gin.Context) {
 	apiKey, exists := c.Get("api_key_data")
 	if !exists {
@@ -71,7 +71,7 @@ func (h *Handler) HandleValidateAPIKey(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"valid": true, "user_id": apiKey.(*models.APIKeyResponse).UserID})
 }
 
-// HandleRevokeAPIKey РѕС‚Р·С‹РІР°РµС‚ (Р°РЅРЅСѓР»РёСЂСѓРµС‚) API РєР»СЋС‡
+// HandleRevokeAPIKey отзывает (аннулирует) API ключ
 func (h *Handler) HandleRevokeAPIKey(c *gin.Context) {
 	var req struct {
 		Key string `json:"key" form:"key"`

@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// HandleBasicAuthValidate РїСЂРѕРІРµСЂСЏРµС‚ Р°РІС‚РѕСЂРёР·Р°С†РёСЋ С‡РµСЂРµР· Basic Auth РёР»Рё Bearer
+// HandleBasicAuthValidate проверяет авторизацию через Basic Auth или Bearer
 func (h *Handler) HandleBasicAuthValidate(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {

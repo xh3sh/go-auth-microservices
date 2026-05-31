@@ -6,7 +6,7 @@ import (
 	"github.com/xh3sh/go-auth-microservices/internal/repository"
 )
 
-// Handler СЏРІР»СЏРµС‚СЃСЏ С†РµРЅС‚СЂР°Р»СЊРЅС‹Рј СѓР·Р»РѕРј РґР»СЏ РІСЃРµС… HTTP С…РµРЅРґР»РµСЂРѕРІ РїСЂРёР»РѕР¶РµРЅРёСЏ
+// Handler является центральным узлом для всех HTTP хендлеров приложения
 type Handler struct {
 	jwtService     *auth.JWTService
 	apiKeyService  *auth.APIKeyService

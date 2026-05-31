@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// NewLogRouter СЃРѕР·РґР°РµС‚ СЂРѕСѓС‚РµСЂ РґР»СЏ СЃРµСЂРІРёСЃР° Р»РѕРіРѕРІ
+// NewLogRouter создает роутер для сервиса логов
 func NewLogRouter(h *handler.Handler) *gin.Engine {
 	r := gin.Default()
 

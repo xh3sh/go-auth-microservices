@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// HandleJWTLogin РѕР±СЂР°Р±Р°С‚С‹РІР°РµС‚ РІС…РѕРґ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ Рё РІС‹РґР°РµС‚ РїР°СЂСѓ JWT С‚РѕРєРµРЅРѕРІ
+// HandleJWTLogin обрабатывает вход пользователя и выдает пару JWT токенов
 func (h *Handler) HandleJWTLogin(c *gin.Context) {
 	var req models.LoginRequest
 	if err := c.ShouldBind(&req); err != nil {
@@ -39,6 +39,7 @@ func (h *Handler) HandleJWTLogin(c *gin.Context) {
 	authEvent := models.AuthEvent{
 		UserID:    creds.ID,
 		EventType: "jwt_login",
+		TraceID:   utils.GetTraceID(c.Request.Context()),
 		Timestamp: time.Now(),
 	}
 	if h.eventRepo != nil {
@@ -55,7 +56,7 @@ func (h *Handler) HandleJWTLogin(c *gin.Context) {
 	c.JSON(http.StatusOK, tokenPair)
 }
 
-// HandleJWTRefresh РѕР±РЅРѕРІР»СЏРµС‚ access С‚РѕРєРµРЅ, РёСЃРїРѕР»СЊР·СѓСЏ РІР°Р»РёРґРЅС‹Р№ refresh С‚РѕРєРµРЅ
+// HandleJWTRefresh обновляет access токен, используя валидный refresh токен
 func (h *Handler) HandleJWTRefresh(c *gin.Context) {
 	var req models.RefreshTokenRequest
 	refreshToken := ""
@@ -89,7 +90,7 @@ func (h *Handler) HandleJWTRefresh(c *gin.Context) {
 	})
 }
 
-// HandleJWTValidate РІРѕР·РІСЂР°С‰Р°РµС‚ РґР°РЅРЅС‹Рµ РёР· С‚РѕРєРµРЅР°, РµСЃР»Рё РѕРЅ РІР°Р»РёРґРµРЅ
+// HandleJWTValidate возвращает данные из токена, если он валиден
 func (h *Handler) HandleJWTValidate(c *gin.Context) {
 	claims, exists := c.Get("jwt_claims")
 	if !exists {
@@ -99,7 +100,7 @@ func (h *Handler) HandleJWTValidate(c *gin.Context) {
 	c.JSON(http.StatusOK, claims)
 }
 
-// HandleJWTLogout Р°РЅРЅСѓР»РёСЂСѓРµС‚ С‚РµРєСѓС‰РёР№ JWT С‚РѕРєРµРЅ
+// HandleJWTLogout аннулирует текущий JWT токен
 func (h *Handler) HandleJWTLogout(c *gin.Context) {
 	token, err := c.Cookie("access_token")
 	if err != nil {

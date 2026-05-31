@@ -9,7 +9,7 @@ import (
 	"github.com/xh3sh/go-auth-microservices/internal/constants"
 )
 
-// SetSession СЃРѕС…СЂР°РЅСЏРµС‚ РґР°РЅРЅС‹Рµ СЃРµСЃСЃРёРё РІ Redis
+// SetSession сохраняет данные сессии в Redis
 func (r *redisRepository) SetSession(ctx context.Context, sessionID string, data interface{}, ttl time.Duration) error {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
@@ -18,7 +18,7 @@ func (r *redisRepository) SetSession(ctx context.Context, sessionID string, data
 	return r.Set(ctx, fmt.Sprintf("%s%s", constants.PrefixSession, sessionID), jsonData, &ttl)
 }
 
-// GetSession РёР·РІР»РµРєР°РµС‚ РґР°РЅРЅС‹Рµ СЃРµСЃСЃРёРё РёР· Redis
+// GetSession извлекает данные сессии из Redis
 func (r *redisRepository) GetSession(ctx context.Context, sessionID string, dest interface{}) error {
 	val, err := r.Get(ctx, fmt.Sprintf("%s%s", constants.PrefixSession, sessionID)).Result()
 	if err != nil {
@@ -27,7 +27,7 @@ func (r *redisRepository) GetSession(ctx context.Context, sessionID string, dest
 	return json.Unmarshal([]byte(val), dest)
 }
 
-// DeleteSession СѓРґР°Р»СЏРµС‚ СЃРµСЃСЃРёСЋ РёР· Redis
+// DeleteSession удаляет сессию из Redis
 func (r *redisRepository) DeleteSession(ctx context.Context, sessionID string) error {
 	return r.Del(ctx, fmt.Sprintf("%s%s", constants.PrefixSession, sessionID))
 }

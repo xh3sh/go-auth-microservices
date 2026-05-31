@@ -13,7 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// AuthMiddleware РїСЂРµРґРѕСЃС‚Р°РІР»СЏРµС‚ РјРµС‚РѕРґС‹ РґР»СЏ Р°СѓС‚РµРЅС‚РёС„РёРєР°С†РёРё Р·Р°РїСЂРѕСЃРѕРІ
+// AuthMiddleware предоставляет методы для аутентификации запросов
 type AuthMiddleware struct {
 	jwtService     *auth.JWTService
 	apiKeyService  *auth.APIKeyService
@@ -32,7 +32,7 @@ func NewAuthMiddleware(jwt *auth.JWTService, api *auth.APIKeyService, session *a
 	}
 }
 
-// UniversalAuth РїСЂРѕРІРµСЂСЏРµС‚ РІСЃРµ РґРѕСЃС‚СѓРїРЅС‹Рµ СЃРїРѕСЃРѕР±С‹ Р°РІС‚РѕСЂРёР·Р°С†РёРё
+// UniversalAuth проверяет все доступные способы авторизации
 func (m *AuthMiddleware) UniversalAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
@@ -145,7 +145,7 @@ func (m *AuthMiddleware) UniversalAuth() gin.HandlerFunc {
 	}
 }
 
-// JWTAuth РїСЂРѕРІРµСЂСЏРµС‚ JWT РІ Р·Р°РіРѕР»РѕРІРєРµ Authorization РёР»Рё РєСѓРєР°С…
+// JWTAuth проверяет JWT в заголовке Authorization или куках
 func (m *AuthMiddleware) JWTAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
@@ -183,7 +183,7 @@ func (m *AuthMiddleware) JWTAuth() gin.HandlerFunc {
 	}
 }
 
-// OAuthAuth РїСЂРѕРІРµСЂСЏРµС‚ OAuth JWT РІ РєСѓРєР°С…
+// OAuthAuth проверяет OAuth JWT в куках
 func (m *AuthMiddleware) OAuthAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		oauthToken, err := c.Cookie("oauth_access_token")
@@ -212,7 +212,7 @@ func (m *AuthMiddleware) OAuthAuth() gin.HandlerFunc {
 	}
 }
 
-// BasicAuth РїСЂРѕРІРµСЂСЏРµС‚ Р·Р°РіРѕР»РѕРІРѕРє Authorization: Basic
+// BasicAuth проверяет заголовок Authorization: Basic
 func (m *AuthMiddleware) BasicAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		username, password, ok := c.Request.BasicAuth()
@@ -254,7 +254,7 @@ func (m *AuthMiddleware) publishValidation(userID, method string, isValid bool, 
 	})
 }
 
-// APIKeyAuth РїСЂРѕРІРµСЂСЏРµС‚ API-РєР»СЋС‡ РІ Р·Р°РіРѕР»РѕРІРєРµ X-API-Key
+// APIKeyAuth проверяет API-ключ в заголовке X-API-Key
 func (m *AuthMiddleware) APIKeyAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		keyVal := c.GetHeader("X-API-Key")
@@ -284,7 +284,7 @@ func (m *AuthMiddleware) APIKeyAuth() gin.HandlerFunc {
 	}
 }
 
-// SessionAuth РїСЂРѕРІРµСЂСЏРµС‚ ID СЃРµСЃСЃРёРё РІ РєСѓРєР°С… РёР»Рё Р·Р°РіРѕР»РѕРІРєРµ
+// SessionAuth проверяет ID сессии в куках или заголовке
 func (m *AuthMiddleware) SessionAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sessionID, err := c.Cookie("session_id")

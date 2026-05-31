@@ -8,7 +8,7 @@ import (
 	"github.com/xh3sh/go-auth-microservices/internal/models"
 )
 
-// GetUser РІРѕР·РІСЂР°С‰Р°РµС‚ РїСЂРѕС„РёР»СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РїРѕ РµРіРѕ ID
+// GetUser возвращает профиль пользователя по его ID
 func (r *redisRepository) GetUser(ctx context.Context, id string) (models.User, error) {
 	var user models.User
 	val, err := r.Get(ctx, fmt.Sprintf("%s%s", constants.PrefixUser, id)).Result()
@@ -19,7 +19,7 @@ func (r *redisRepository) GetUser(ctx context.Context, id string) (models.User, 
 	return user, err
 }
 
-// GetAllUsers РІРѕР·РІСЂР°С‰Р°РµС‚ СЃРїРёСЃРѕРє РІСЃРµС… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ СЃРёСЃС‚РµРјС‹
+// GetAllUsers возвращает список всех пользователей системы
 func (r *redisRepository) GetAllUsers(ctx context.Context) ([]models.User, error) {
 	users := []models.User{}
 	iter := r.Scan(ctx, 0, fmt.Sprintf("%s*", constants.PrefixUser), 0)
@@ -36,7 +36,7 @@ func (r *redisRepository) GetAllUsers(ctx context.Context) ([]models.User, error
 	return users, iter.Err()
 }
 
-// DeleteUser СѓРґР°Р»СЏРµС‚ РїСЂРѕС„РёР»СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ Рё РёРЅРґРµРєСЃ
+// DeleteUser удаляет профиль пользователя и индекс
 func (r *redisRepository) DeleteUser(ctx context.Context, id string) error {
 	user, err := r.GetUser(ctx, id)
 	if err == nil {

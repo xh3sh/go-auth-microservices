@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// GetLogs РІРѕР·РІСЂР°С‰Р°РµС‚ СЃРїРёСЃРѕРє РІСЃРµС… Р»РѕРіРѕРІ СЃРёСЃС‚РµРјС‹
+// GetLogs возвращает список всех логов системы
 func (h *Handler) GetLogs(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if page < 1 {
@@ -32,7 +32,7 @@ func (h *Handler) GetLogs(c *gin.Context) {
 	})
 }
 
-// FilterLogs С„РёР»СЊС‚СЂСѓРµС‚ Р»РѕРіРё РїРѕ Р·Р°РґР°РЅРЅС‹Рј РїР°СЂР°РјРµС‚СЂР°Рј
+// FilterLogs фильтрует логи по заданным параметрам
 func (h *Handler) FilterLogs(c *gin.Context) {
 	userID := c.Query("user_id")
 	service := c.Query("service")

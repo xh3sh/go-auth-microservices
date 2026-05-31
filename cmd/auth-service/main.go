@@ -15,6 +15,8 @@ import (
 	"github.com/xh3sh/go-auth-microservices/internal/middleware"
 	"github.com/xh3sh/go-auth-microservices/internal/repository"
 	"github.com/xh3sh/go-auth-microservices/internal/router"
+	"github.com/xh3sh/go-auth-microservices/internal/utils"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 )
 
 func main() {
@@ -41,6 +43,7 @@ func main() {
 		log.Println("Auth Service connected to RabbitMQ successfully")
 	}
 
+	tp := utils.InitTracer()
 	repo := repository.NewRedisRepository(redisClient.GetClient())
 
 	jwtService := auth.NewJWTService(cfg.JWTSecret, cfg.JWTExpiration, cfg.JWTRefreshExpiration, repo)
@@ -61,7 +64,7 @@ func main() {
 	authMid := middleware.NewAuthMiddleware(jwtService, apiKeyService, sessionService, repo, eventRepo)
 
 	r := router.NewAuthRouter(h, authMid)
-
+	r.Use(otelgin.Middleware("auth-service"))
 	addr := cfg.AuthServiceHost + ":" + cfg.AuthServicePort
 	srv := &http.Server{
 		Addr:    addr,
@@ -83,6 +86,10 @@ func main() {
 	log.Println("Shutting down Auth Service...")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+
+	if err := tp.Shutdown(ctx); err != nil {
+		log.Printf("Tracer provider shutdown error: %v", err)
+	}
 
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Printf("Server shutdown error: %v", err)

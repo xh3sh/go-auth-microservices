@@ -4,13 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
+
+	"github.com/redis/go-redis/v9"
 	"github.com/xh3sh/go-auth-microservices/internal/constants"
 	"github.com/xh3sh/go-auth-microservices/internal/models"
-	"github.com/redis/go-redis/v9"
-	"time"
 )
 
-// SaveLog СЃРѕС…СЂР°РЅСЏРµС‚ Р·Р°РїРёСЃСЊ Р»РѕРіР° Рё РѕР±РЅРѕРІР»СЏРµС‚ РїРѕРёСЃРєРѕРІС‹Рµ РёРЅРґРµРєСЃС‹ РІ Redis
+// SaveLog сохраняет запись лога и обновляет поисковые индексы в Redis
 func (r *redisRepository) SaveLog(ctx context.Context, entry models.LogEntry) error {
 	jsonData, err := json.Marshal(entry)
 	if err != nil {
@@ -52,24 +53,31 @@ func (r *redisRepository) SaveLog(ctx context.Context, entry models.LogEntry) er
 		r.client.Expire(ctx, typeKey, constants.LogTTL)
 	}
 
+	if entry.TraceID != "" {
+		traceKey := r.buildKey(fmt.Sprintf("%strace:%s", constants.PrefixLogType, entry.TraceID))
+		r.client.ZAdd(ctx, traceKey, redis.Z{Score: score, Member: jsonData})
+		r.client.ZRemRangeByScore(ctx, traceKey, "-inf", fmt.Sprintf("%f", minScore))
+		r.client.Expire(ctx, traceKey, constants.LogTTL)
+	}
+
 	return nil
 }
 
-// GetLogs РІРѕР·РІСЂР°С‰Р°РµС‚ СЃРїРёСЃРѕРє РІСЃРµС… Р»РѕРіРѕРІ СЃ РїР°РіРёРЅР°С†РёРµР№
+// GetLogs возвращает список всех логов с пагинацией
 func (r *redisRepository) GetLogs(ctx context.Context, page, pageSize int) ([]models.LogEntry, int64, error) {
 	key := r.buildKey(constants.PrefixLogs)
 	minScore := float64(time.Now().Add(-constants.LogTTL).UnixNano())
 	r.client.ZRemRangeByScore(ctx, key, "-inf", fmt.Sprintf("%f", minScore))
-	
+
 	return r.getPaginatedLogs(ctx, key, page, pageSize)
 }
 
-// FilterLogs С„РёР»СЊС‚СЂСѓРµС‚ Р»РѕРіРё РїРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЋ, СЃРµСЂРІРёСЃСѓ Рё С‚РёРїСѓ
+// FilterLogs фильтрует логи по пользователю, сервису и типу
 func (r *redisRepository) FilterLogs(ctx context.Context, userID string, service, logType string, page, pageSize int) ([]models.LogEntry, int64, error) {
 	var keys []string
 	minScore := float64(time.Now().Add(-constants.LogTTL).UnixNano())
 	minScoreStr := fmt.Sprintf("%f", minScore)
-	
+
 	if userID != "" && userID != "0" {
 		key := r.buildKey(fmt.Sprintf("%s%s", constants.PrefixLogUser, userID))
 		r.client.ZRemRangeByScore(ctx, key, "-inf", minScoreStr)

@@ -8,7 +8,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// Config С…СЂР°РЅРёС‚ РєРѕРЅС„РёРіСѓСЂР°С†РёСЋ РїСЂРёР»РѕР¶РµРЅРёСЏ РёР· РїРµСЂРµРјРµРЅРЅС‹С… РѕРєСЂСѓР¶РµРЅРёСЏ
+// Config хранит конфигурацию приложения из переменных окружения
 type Config struct {
 	RabbitMQUser      string
 	RabbitMQPassword  string
@@ -41,7 +41,7 @@ type Config struct {
 	GoogleRedirectURL  string
 }
 
-// Load Р·Р°РіСЂСѓР¶Р°РµС‚ РєРѕРЅС„РёРіСѓСЂР°С†РёСЋ РёР· .env С„Р°Р№Р»Р° РёР»Рё СЃРёСЃС‚РµРјРЅС‹С… РїРµСЂРµРјРµРЅРЅС‹С…
+// Load загружает конфигурацию из .env файла или системных переменных
 func Load() *Config {
 	err := godotenv.Load()
 	if err != nil {

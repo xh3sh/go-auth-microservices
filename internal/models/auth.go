@@ -2,7 +2,7 @@ package models
 
 import "time"
 
-// JWT СЃС‚СЂСѓРєС‚СѓСЂС‹
+// JWT структуры
 type JWTClaims struct {
 	UserID   string `json:"user_id"`
 	Username string `json:"username"`
@@ -17,7 +17,7 @@ type JWTTokenPair struct {
 	TokenType    string `json:"token_type"`
 }
 
-// API Key СЃС‚СЂСѓРєС‚СѓСЂС‹
+// API Key структуры
 type APIKey struct {
 	ID        string    `json:"id"`
 	Key       string    `json:"key"`
@@ -37,7 +37,7 @@ type APIKeyResponse struct {
 	ExpiresAt time.Time `json:"expires_at"`
 }
 
-// OAuth 2.0 СЃС‚СЂСѓРєС‚СѓСЂС‹
+// OAuth 2.0 структуры
 type OAuthClient struct {
 	ClientID     string    `json:"client_id"`
 	ClientSecret string    `json:"client_secret"`
@@ -57,7 +57,7 @@ type OAuthToken struct {
 	IssuedAt     int64  `json:"issued_at"`
 }
 
-// Session СЃС‚СЂСѓРєС‚СѓСЂР°
+// Session структура
 type Session struct {
 	SessionID string    `json:"session_id"`
 	UserID    string    `json:"user_id"`
@@ -66,7 +66,7 @@ type Session struct {
 	IsActive  bool      `json:"is_active"`
 }
 
-// РЎС‚СЂСѓРєС‚СѓСЂС‹ Р·Р°РїСЂРѕСЃРѕРІ
+// Структуры запросов
 type LoginRequest struct {
 	Username string `json:"username" form:"username"`
 	Password string `json:"password" form:"password"`
@@ -90,14 +90,14 @@ type OAuthTokenRequest struct {
 	Scope        string `json:"scope,omitempty"`
 }
 
-// РЎС‚СЂСѓРєС‚СѓСЂР° РѕС€РёР±РєРё
+// Структура ошибки
 type AuthError struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
 	Details string `json:"details,omitempty"`
 }
 
-// UserCredentials С…СЂР°РЅРёС‚ РґР°РЅРЅС‹Рµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РґР»СЏ Р°СѓС‚РµРЅС‚РёС„РёРєР°С†РёРё
+// UserCredentials хранит данные пользователя для аутентификации
 type UserCredentials struct {
 	ID           string `json:"id"`
 	Username     string `json:"username"`

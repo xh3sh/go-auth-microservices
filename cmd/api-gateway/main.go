@@ -15,6 +15,7 @@ import (
 	"github.com/xh3sh/go-auth-microservices/internal/middleware"
 	"github.com/xh3sh/go-auth-microservices/internal/repository"
 	"github.com/xh3sh/go-auth-microservices/internal/router"
+	"github.com/xh3sh/go-auth-microservices/internal/utils"
 )
 
 func main() {
@@ -41,6 +42,7 @@ func main() {
 		log.Println("Gateway connected to RabbitMQ successfully")
 	}
 
+	tp := utils.InitTracer()
 	repo := repository.NewRedisRepository(redisClient.GetClient())
 
 	jwtService := auth.NewJWTService(cfg.JWTSecret, cfg.JWTExpiration, cfg.JWTRefreshExpiration, repo)
@@ -59,6 +61,7 @@ func main() {
 	userAddr := fmt.Sprintf("%s:%s", cfg.UserServiceHost, cfg.UserServicePort)
 	logAddr := fmt.Sprintf("%s:%s", cfg.LogConsumerHost, cfg.LogConsumerPort)
 	frontendAddr := fmt.Sprintf("%s:%s", cfg.FrontendHost, cfg.FrontendPort)
+
 	r := router.NewGatewayRouter(authAddr, userAddr, logAddr, frontendAddr, authMiddleware, eventRepo)
 
 	addr := fmt.Sprintf("%s:%s", cfg.APIGatewayHost, cfg.APIGatewayPort)
@@ -82,6 +85,10 @@ func main() {
 	log.Println("Shutting down API Gateway...")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+
+	if err := tp.Shutdown(ctx); err != nil {
+		log.Printf("Tracer provider shutdown error: %v", err)
+	}
 
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Printf("Server shutdown error: %v", err)

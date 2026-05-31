@@ -11,7 +11,7 @@ import (
 	"github.com/xh3sh/go-auth-microservices/internal/utils"
 )
 
-// OAuthService СЂРµР°Р»РёР·СѓРµС‚ Р»РѕРіРёРєСѓ OAuth 2.0 СЃРµСЂРІРµСЂР°
+// OAuthService реализует логику OAuth 2.0 сервера
 type OAuthService struct {
 	repo repository.TokenRepository
 }
@@ -22,7 +22,7 @@ func NewOAuthService(repo repository.TokenRepository) *OAuthService {
 	}
 }
 
-// ValidateClient РїСЂРѕРІРµСЂСЏРµС‚ СѓС‡РµС‚РЅС‹Рµ РґР°РЅРЅС‹Рµ OAuth РєР»РёРµРЅС‚Р°
+// ValidateClient проверяет учетные данные OAuth клиента
 func (o *OAuthService) ValidateClient(clientID, clientSecret string) (bool, error) {
 	if clientID == "test_client" && clientSecret == "test_secret" {
 		return true, nil
@@ -30,7 +30,7 @@ func (o *OAuthService) ValidateClient(clientID, clientSecret string) (bool, erro
 	return len(clientID) > 0 && len(clientSecret) > 0, nil
 }
 
-// GenerateOAuthToken СЃРѕР·РґР°РµС‚ РЅРѕРІС‹Р№ OAuth С‚РѕРєРµРЅ
+// GenerateOAuthToken создает новый OAuth токен
 func (o *OAuthService) GenerateOAuthToken(clientID string, scope string) (*models.OAuthToken, error) {
 	if len(clientID) == 0 {
 		return nil, errors.New("invalid client ID")
@@ -55,7 +55,7 @@ func (o *OAuthService) GenerateOAuthToken(clientID string, scope string) (*model
 	return token, nil
 }
 
-// ValidateOAuthToken РїСЂРѕРІРµСЂСЏРµС‚ РІР°Р»РёРґРЅРѕСЃС‚СЊ OAuth С‚РѕРєРµРЅР°
+// ValidateOAuthToken проверяет валидность OAuth токена
 func (o *OAuthService) ValidateOAuthToken(token string) (bool, error) {
 	if len(token) == 0 {
 		return false, nil
@@ -70,7 +70,7 @@ func (o *OAuthService) ValidateOAuthToken(token string) (bool, error) {
 	return true, nil
 }
 
-// RevokeOAuthToken РѕС‚Р·С‹РІР°РµС‚ OAuth С‚РѕРєРµРЅ
+// RevokeOAuthToken отзывает OAuth токен
 func (o *OAuthService) RevokeOAuthToken(token string) error {
 	if len(token) == 0 {
 		return errors.New("invalid token")
@@ -80,7 +80,7 @@ func (o *OAuthService) RevokeOAuthToken(token string) error {
 	return o.repo.SetBlacklist(ctx, token, time.Hour)
 }
 
-// ExchangeAuthorizationCode РѕР±РјРµРЅРёРІР°РµС‚ РєРѕРґ Р°РІС‚РѕСЂРёР·Р°С†РёРё РЅР° С‚РѕРєРµРЅ
+// ExchangeAuthorizationCode обменивает код авторизации на токен
 func (o *OAuthService) ExchangeAuthorizationCode(clientID, clientSecret, code, redirectURI string) (*models.OAuthToken, error) {
 	if len(clientID) == 0 || len(code) == 0 || len(redirectURI) == 0 {
 		return nil, errors.New("invalid parameters")
@@ -94,7 +94,7 @@ func (o *OAuthService) ExchangeAuthorizationCode(clientID, clientSecret, code, r
 	return o.GenerateOAuthToken(clientID, "")
 }
 
-// ValidateScope РїСЂРѕРІРµСЂСЏРµС‚ РїСЂР°РІР° РґРѕСЃС‚СѓРїР° (scope) РєР»РёРµРЅС‚Р°
+// ValidateScope проверяет права доступа (scope) клиента
 func (o *OAuthService) ValidateScope(clientID, requestedScope string) (bool, error) {
 	if len(clientID) == 0 || len(requestedScope) == 0 {
 		return false, nil

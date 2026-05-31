@@ -12,7 +12,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// JWTService РїСЂРµРґРѕСЃС‚Р°РІР»СЏРµС‚ РјРµС‚РѕРґС‹ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ JWT С‚РѕРєРµРЅР°РјРё
+// JWTService предоставляет методы для работы с JWT токенами
 type JWTService struct {
 	secret            string
 	expiration        int64
@@ -29,7 +29,7 @@ func NewJWTService(secret string, expiration int64, refreshExpiration int64, rep
 	}
 }
 
-// GenerateTokenPair РіРµРЅРµСЂРёСЂСѓРµС‚ РїР°СЂСѓ С‚РѕРєРµРЅРѕРІ: access Рё refresh
+// GenerateTokenPair генерирует пару токенов: access и refresh
 func (j *JWTService) GenerateTokenPair(userID string, username string) (*models.JWTTokenPair, error) {
 	accessToken, err := j.generateAccessToken(userID, username)
 	if err != nil {
@@ -88,7 +88,7 @@ func (j *JWTService) generateRefreshToken(userID string, username string) (strin
 	return token.SignedString([]byte(j.secret))
 }
 
-// ValidateToken РїСЂРѕРІРµСЂСЏРµС‚ РІР°Р»РёРґРЅРѕСЃС‚СЊ С‚РѕРєРµРЅР° Рё РЅР°Р»РёС‡РёРµ РµРіРѕ РІ С‡РµСЂРЅРѕРј СЃРїРёСЃРєРµ
+// ValidateToken проверяет валидность токена и наличие его в черном списке
 func (j *JWTService) ValidateToken(tokenString string) (jwt.MapClaims, error) {
 	ctx := context.Background()
 	blacklisted, err := j.repo.IsBlacklisted(ctx, tokenString)
@@ -114,7 +114,7 @@ func (j *JWTService) ValidateToken(tokenString string) (jwt.MapClaims, error) {
 	return claims, nil
 }
 
-// ExtractClaims РёР·РІР»РµРєР°РµС‚ РґР°РЅРЅС‹Рµ РёР· JWT С‚РѕРєРµРЅР°
+// ExtractClaims извлекает данные из JWT токена
 func (j *JWTService) ExtractClaims(tokenString string) (*models.JWTClaims, error) {
 	claims, err := j.ValidateToken(tokenString)
 	if err != nil {
@@ -134,7 +134,7 @@ func (j *JWTService) ExtractClaims(tokenString string) (*models.JWTClaims, error
 	}, nil
 }
 
-// RefreshAccessToken РѕР±РЅРѕРІР»СЏРµС‚ access С‚РѕРєРµРЅ РЅР° РѕСЃРЅРѕРІРµ РІР°Р»РёРґРЅРѕРіРѕ refresh С‚РѕРєРµРЅР°
+// RefreshAccessToken обновляет access токен на основе валидного refresh токена
 func (j *JWTService) RefreshAccessToken(refreshToken string) (string, error) {
 	claims, err := j.ValidateToken(refreshToken)
 	if err != nil {
@@ -157,7 +157,7 @@ func (j *JWTService) RefreshAccessToken(refreshToken string) (string, error) {
 	return j.generateAccessToken(userID, username)
 }
 
-// RevokeToken РґРѕР±Р°РІР»СЏРµС‚ С‚РѕРєРµРЅ РІ С‡РµСЂРЅС‹Р№ СЃРїРёСЃРѕРє
+// RevokeToken добавляет токен в черный список
 func (j *JWTService) RevokeToken(tokenString string, ttl time.Duration) error {
 	ctx := context.Background()
 	return j.repo.SetBlacklist(ctx, tokenString, ttl)

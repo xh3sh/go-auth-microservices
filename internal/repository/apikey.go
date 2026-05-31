@@ -9,7 +9,7 @@ import (
 	"github.com/xh3sh/go-auth-microservices/internal/constants"
 )
 
-// SetAPIKey СЃРѕС…СЂР°РЅСЏРµС‚ API РєР»СЋС‡ РІ Redis
+// SetAPIKey сохраняет API ключ в Redis
 func (r *redisRepository) SetAPIKey(ctx context.Context, apiKeyID string, data interface{}, ttl time.Duration) error {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
@@ -18,7 +18,7 @@ func (r *redisRepository) SetAPIKey(ctx context.Context, apiKeyID string, data i
 	return r.Set(ctx, fmt.Sprintf("%s%s", constants.PrefixAPIKey, apiKeyID), jsonData, &ttl)
 }
 
-// GetAPIKey РёР·РІР»РµРєР°РµС‚ API РєР»СЋС‡ РёР· Redis
+// GetAPIKey извлекает API ключ из Redis
 func (r *redisRepository) GetAPIKey(ctx context.Context, apiKeyID string, dest interface{}) error {
 	val, err := r.Get(ctx, fmt.Sprintf("%s%s", constants.PrefixAPIKey, apiKeyID)).Result()
 	if err != nil {
@@ -27,7 +27,7 @@ func (r *redisRepository) GetAPIKey(ctx context.Context, apiKeyID string, dest i
 	return json.Unmarshal([]byte(val), dest)
 }
 
-// DeleteAPIKey СѓРґР°Р»СЏРµС‚ API РєР»СЋС‡ РёР· Redis
+// DeleteAPIKey удаляет API ключ из Redis
 func (r *redisRepository) DeleteAPIKey(ctx context.Context, apiKeyID string) error {
 	return r.Del(ctx, fmt.Sprintf("%s%s", constants.PrefixAPIKey, apiKeyID))
 }

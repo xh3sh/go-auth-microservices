@@ -12,7 +12,7 @@ import (
 	"github.com/xh3sh/go-auth-microservices/internal/repository"
 )
 
-// LogConsumer РїРѕС‚СЂРµР±Р»СЏРµС‚ СЃРѕР±С‹С‚РёСЏ РёР· РѕС‡РµСЂРµРґРµР№ Рё СЃРѕС…СЂР°РЅСЏРµС‚ РёС… РєР°Рє Р»РѕРіРё РІ СЂРµРїРѕР·РёС‚РѕСЂРёР№
+// LogConsumer потребляет события из очередей и сохраняет их как логи в репозиторий
 type LogConsumer struct {
 	repo      repository.Repository
 	eventRepo *repository.RabbitMQRepository
@@ -25,7 +25,7 @@ func NewLogConsumer(repo repository.Repository, eventRepo *repository.RabbitMQRe
 	}
 }
 
-// Start Р·Р°РїСѓСЃРєР°РµС‚ РїСЂРѕС†РµСЃСЃ РїРѕС‚СЂРµР±Р»РµРЅРёСЏ РёР· РІСЃРµС… РЅР°СЃС‚СЂРѕРµРЅРЅС‹С… РѕС‡РµСЂРµРґРµР№
+// Start запускает процесс потребления из всех настроенных очередей
 func (c *LogConsumer) Start(ctx context.Context) {
 	queues := []string{constants.QueueAuthEvents, constants.QueueAPIEvents, constants.QueueUserEvents}
 
@@ -67,6 +67,7 @@ func (c *LogConsumer) processMessage(queueName, routingKey string, body []byte) 
 				entry.UserID = tokenEvent.UserID
 				entry.Service = "auth"
 				entry.Type = "token_validation"
+				entry.TraceID = tokenEvent.TraceID
 				entry.Timestamp = tokenEvent.Timestamp
 			}
 		case len(routingKey) >= len(constants.RoutingKeyAuthPrefix) && routingKey[:len(constants.RoutingKeyAuthPrefix)] == constants.RoutingKeyAuthPrefix:
@@ -75,6 +76,7 @@ func (c *LogConsumer) processMessage(queueName, routingKey string, body []byte) 
 				entry.UserID = authEvent.UserID
 				entry.Service = "auth"
 				entry.Type = authEvent.EventType
+				entry.TraceID = authEvent.TraceID
 				entry.Timestamp = authEvent.Timestamp
 			}
 		case routingKey == constants.RoutingKeyAPIRequest:
@@ -83,6 +85,7 @@ func (c *LogConsumer) processMessage(queueName, routingKey string, body []byte) 
 				entry.UserID = apiEvent.UserID
 				entry.Service = "gateway"
 				entry.Type = apiEvent.Action
+				entry.TraceID = apiEvent.TraceID
 				entry.Timestamp = apiEvent.Timestamp
 			}
 		case len(routingKey) > 5 && routingKey[:5] == "user.":
@@ -91,6 +94,7 @@ func (c *LogConsumer) processMessage(queueName, routingKey string, body []byte) 
 				entry.UserID = userEvent.UserID
 				entry.Service = "user"
 				entry.Type = userEvent.Action
+				entry.TraceID = userEvent.TraceID
 				entry.Timestamp = userEvent.Timestamp
 			}
 		}
@@ -104,6 +108,7 @@ func (c *LogConsumer) processMessage(queueName, routingKey string, body []byte) 
 				entry.UserID = authEvent.UserID
 				entry.Service = "auth"
 				entry.Type = authEvent.EventType
+				entry.TraceID = authEvent.TraceID
 				entry.Timestamp = authEvent.Timestamp
 			}
 		case constants.QueueAPIEvents:
@@ -112,6 +117,7 @@ func (c *LogConsumer) processMessage(queueName, routingKey string, body []byte) 
 				entry.UserID = apiEvent.UserID
 				entry.Service = "gateway"
 				entry.Type = apiEvent.Action
+				entry.TraceID = apiEvent.TraceID
 				entry.Timestamp = apiEvent.Timestamp
 			}
 		case constants.QueueUserEvents:
@@ -120,6 +126,7 @@ func (c *LogConsumer) processMessage(queueName, routingKey string, body []byte) 
 				entry.UserID = userEvent.UserID
 				entry.Service = "user"
 				entry.Type = userEvent.Action
+				entry.TraceID = userEvent.TraceID
 				entry.Timestamp = userEvent.Timestamp
 			}
 		}
@@ -128,7 +135,7 @@ func (c *LogConsumer) processMessage(queueName, routingKey string, body []byte) 
 	if entry.Timestamp.IsZero() {
 		entry.Timestamp = time.Now()
 	}
-	
+
 	entry.ID = fmt.Sprintf("%d-%s-%s", entry.Timestamp.UnixNano(), entry.Service, entry.UserID)
 
 	if err := c.repo.SaveLog(context.Background(), entry); err != nil {

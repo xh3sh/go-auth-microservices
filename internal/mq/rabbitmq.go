@@ -12,7 +12,7 @@ type Config struct {
 	QueueName string
 }
 
-// Client РїСЂРµРґРѕСЃС‚Р°РІР»СЏРµС‚ РѕР±РµСЂС‚РєСѓ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ RabbitMQ СЃРѕРµРґРёРЅРµРЅРёРµРј
+// Client предоставляет обертку для работы с RabbitMQ соединением
 type Client struct {
 	Conn    *amqp.Connection
 	Channel *amqp.Channel

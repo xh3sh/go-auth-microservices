@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// HandleRegister СЂРµРіРёСЃС‚СЂРёСЂСѓРµС‚ РЅРѕРІРѕРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РІ СЃРёСЃС‚РµРјРµ
+// HandleRegister регистрирует нового пользователя в системе
 func (h *Handler) HandleRegister(c *gin.Context) {
 	var req models.RegisterRequest
 	if err := c.ShouldBind(&req); err != nil {

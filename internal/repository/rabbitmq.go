@@ -13,7 +13,7 @@ import (
 	"github.com/xh3sh/go-auth-microservices/internal/models"
 )
 
-// RabbitMQRepository РїСЂРµРґРѕСЃС‚Р°РІР»СЏРµС‚ С„СѓРЅРєС†РёРѕРЅР°Р» РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РѕС‡РµСЂРµРґСЏРјРё СЃРѕРѕР±С‰РµРЅРёР№
+// RabbitMQRepository предоставляет функционал для работы с очередями сообщений
 type RabbitMQRepository struct {
 	conn    *amqp.Connection
 	channel *amqp.Channel
@@ -60,7 +60,7 @@ func NewRabbitMQRepository(user, password, host, port string) (*RabbitMQReposito
 	return repo, nil
 }
 
-// SetupTopology РЅР°СЃС‚СЂР°РёРІР°РµС‚ РѕС‡РµСЂРµРґРё Рё РїСЂРёРІСЏР·РєРё Рє РѕР±РјРµРЅРЅРёРєСѓ
+// SetupTopology настраивает очереди и привязки к обменнику
 func (r *RabbitMQRepository) SetupTopology() error {
 	queues := map[string][]string{
 		constants.QueueAuthEvents: {constants.PatternAuthEvents, constants.PatternTokenEvents},
@@ -143,7 +143,7 @@ func (r *RabbitMQRepository) PublishTokenValidationEvent(event models.TokenValid
 	return r.publish(constants.RoutingKeyTokenValidation, event)
 }
 
-// Consume РїРѕРґРїРёСЃС‹РІР°РµС‚СЃСЏ РЅР° РѕС‡РµСЂРµРґСЊ Рё РІРѕР·РІСЂР°С‰Р°РµС‚ РєР°РЅР°Р» СЃРѕРѕР±С‰РµРЅРёР№
+// Consume подписывается на очередь и возвращает канал сообщений
 func (r *RabbitMQRepository) Consume(queueName string) (<-chan amqp.Delivery, error) {
 	return r.channel.Consume(
 		queueName,

@@ -7,16 +7,17 @@ import (
 
 	"github.com/xh3sh/go-auth-microservices/internal/models"
 	"github.com/xh3sh/go-auth-microservices/internal/repository"
+	"go.opentelemetry.io/otel/trace"
 
 	"github.com/gin-gonic/gin"
 )
 
-// Logging РІРѕР·РІСЂР°С‰Р°РµС‚ СЃС‚Р°РЅРґР°СЂС‚РЅС‹Р№ Р»РѕРіРіРµСЂ Gin
+// Logging возвращает стандартный логгер Gin
 func Logging() gin.HandlerFunc {
 	return gin.Logger()
 }
 
-// APILogger Р»РѕРіРёСЂСѓРµС‚ API Р·Р°РїСЂРѕСЃС‹ Рё РѕС‚РїСЂР°РІР»СЏРµС‚ СЃРѕР±С‹С‚РёСЏ РІ СЂРµРїРѕР·РёС‚РѕСЂРёР№ СЃРѕР±С‹С‚РёР№
+// APILogger логирует API запросы и отправляет события в репозиторий событий
 func APILogger(eventRepo repository.EventRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Next()
@@ -50,6 +51,12 @@ func APILogger(eventRepo repository.EventRepository) gin.HandlerFunc {
 			}
 		}
 
+		span := trace.SpanFromContext(c.Request.Context())
+		traceID := span.SpanContext().TraceID().String()
+		if traceID == "00000000000000000000000000000000" {
+			traceID = ""
+		}
+
 		event := models.APIGatewayEvent{
 			UserID:     userID,
 			AuthMethod: authMethod,
@@ -58,6 +65,7 @@ func APILogger(eventRepo repository.EventRepository) gin.HandlerFunc {
 			Timestamp:  time.Now(),
 			IPAddress:  c.ClientIP(),
 			UserAgent:  c.Request.UserAgent(),
+			TraceID:    traceID,
 		}
 
 		go eventRepo.PublishAPIGatewayEvent(event)

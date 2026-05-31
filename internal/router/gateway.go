@@ -7,18 +7,27 @@ import (
 
 	"github.com/xh3sh/go-auth-microservices/internal/middleware"
 	"github.com/xh3sh/go-auth-microservices/internal/repository"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
 
 	"github.com/gin-gonic/gin"
 )
 
-// NewGatewayRouter СЃРѕР·РґР°РµС‚ РѕСЃРЅРѕРІРЅРѕР№ СЂРѕСѓС‚РµСЂ API Gateway СЃ С„СѓРЅРєС†РёРµР№ РїСЂРѕРєСЃРёСЂРѕРІР°РЅРёСЏ
+// NewGatewayRouter создает основной роутер API Gateway с функцией проксирования
 func NewGatewayRouter(authAddr, userAddr, logAddr, frontendAddr string, authMiddleware *middleware.AuthMiddleware, eventRepo repository.EventRepository) *gin.Engine {
 	r := gin.Default()
+
+	r.Use(otelgin.Middleware("api-service"))
 
 	if eventRepo != nil {
 		r.Use(middleware.APILogger(eventRepo))
 	}
 
+	r.Use(func(c *gin.Context) {
+		otel.GetTextMapPropagator().Inject(c.Request.Context(), propagation.HeaderCarrier(c.Request.Header))
+		c.Next()
+	})
 	authURL, _ := url.Parse("http://" + authAddr)
 	authProxy := httputil.NewSingleHostReverseProxy(authURL)
 

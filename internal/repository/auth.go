@@ -9,7 +9,7 @@ import (
 	"github.com/xh3sh/go-auth-microservices/internal/models"
 )
 
-// CreateUserCredentials СЃРѕС…СЂР°РЅСЏРµС‚ СѓС‡РµС‚РЅС‹Рµ РґР°РЅРЅС‹Рµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ Рё СЃРѕР·РґР°РµС‚ РїРѕРёСЃРєРѕРІС‹Р№ РёРЅРґРµРєСЃ
+// CreateUserCredentials сохраняет учетные данные пользователя и создает поисковый индекс
 func (r *redisRepository) CreateUserCredentials(ctx context.Context, creds models.UserCredentials) error {
 	jsonData, err := json.Marshal(creds)
 	if err != nil {
@@ -23,7 +23,7 @@ func (r *redisRepository) CreateUserCredentials(ctx context.Context, creds model
 	return r.Set(ctx, fmt.Sprintf("%s%s", constants.PrefixUsername, creds.Username), creds.ID, nil)
 }
 
-// GetUserByUsername РЅР°С…РѕРґРёС‚ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РїРѕ РµРіРѕ РёРјРµРЅРё
+// GetUserByUsername находит пользователя по его имени
 func (r *redisRepository) GetUserByUsername(ctx context.Context, username string) (models.UserCredentials, error) {
 	userID, err := r.Get(ctx, fmt.Sprintf("%s%s", constants.PrefixUsername, username)).Result()
 	if err == nil && userID != "" {

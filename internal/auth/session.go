@@ -11,7 +11,7 @@ import (
 	"github.com/xh3sh/go-auth-microservices/internal/utils"
 )
 
-// SessionService СѓРїСЂР°РІР»СЏРµС‚ Р¶РёР·РЅРµРЅРЅС‹Рј С†РёРєР»РѕРј СЃРµСЃСЃРёР№ РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№
+// SessionService управляет жизненным циклом сессий пользователей
 type SessionService struct {
 	sessionRepo repository.SessionRepository
 }
@@ -22,7 +22,7 @@ func NewSessionService(sessionRepo repository.SessionRepository) *SessionService
 	}
 }
 
-// CreateSession СЃРѕР·РґР°РµС‚ РЅРѕРІСѓСЋ СЃРµСЃСЃРёСЋ РґР»СЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
+// CreateSession создает новую сессию для пользователя
 func (s *SessionService) CreateSession(ctx context.Context, userID string, ttl time.Duration) (*models.Session, error) {
 	if userID == "" {
 		return nil, errors.New("invalid user data")
@@ -50,7 +50,7 @@ func (s *SessionService) CreateSession(ctx context.Context, userID string, ttl t
 	return session, nil
 }
 
-// GetSession РёР·РІР»РµРєР°РµС‚ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ СЃРµСЃСЃРёРё РїРѕ РµС‘ ID
+// GetSession извлекает информацию о сессии по её ID
 func (s *SessionService) GetSession(ctx context.Context, sessionID string) (*models.Session, error) {
 	if len(sessionID) == 0 {
 		return nil, errors.New("invalid session ID")
@@ -69,7 +69,7 @@ func (s *SessionService) GetSession(ctx context.Context, sessionID string) (*mod
 	return &session, nil
 }
 
-// ValidateSession РїСЂРѕРІРµСЂСЏРµС‚ РІР°Р»РёРґРЅРѕСЃС‚СЊ СЃРµСЃСЃРёРё
+// ValidateSession проверяет валидность сессии
 func (s *SessionService) ValidateSession(ctx context.Context, sessionID string) (*models.Session, error) {
 	session, err := s.GetSession(ctx, sessionID)
 	if err != nil {
@@ -83,7 +83,7 @@ func (s *SessionService) ValidateSession(ctx context.Context, sessionID string) 
 	return session, nil
 }
 
-// RevokeSession СѓРґР°Р»СЏРµС‚ СЃРµСЃСЃРёСЋ (РѕС‚Р·С‹РІР°РµС‚ РµС‘)
+// RevokeSession удаляет сессию (отзывает её)
 func (s *SessionService) RevokeSession(ctx context.Context, sessionID string) error {
 	if len(sessionID) == 0 {
 		return errors.New("invalid session ID")
@@ -97,7 +97,7 @@ func (s *SessionService) RevokeSession(ctx context.Context, sessionID string) er
 	return nil
 }
 
-// ExtendSession РїСЂРѕРґР»РµРІР°РµС‚ СЃСЂРѕРє РґРµР№СЃС‚РІРёСЏ СЃРµСЃСЃРёРё
+// ExtendSession продлевает срок действия сессии
 func (s *SessionService) ExtendSession(ctx context.Context, sessionID string, newTTL time.Duration) error {
 	session, err := s.GetSession(ctx, sessionID)
 	if err != nil {

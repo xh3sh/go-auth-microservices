@@ -12,7 +12,7 @@ import (
 	"github.com/xh3sh/go-auth-microservices/internal/utils"
 )
 
-// APIKeyService РїСЂРµРґРѕСЃС‚Р°РІР»СЏРµС‚ С„СѓРЅРєС†РёРѕРЅР°Р» РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ API РєР»СЋС‡Р°РјРё
+// APIKeyService предоставляет функционал для работы с API ключами
 type APIKeyService struct {
 	repo repository.APIKeyRepository
 }
@@ -23,7 +23,7 @@ func NewAPIKeyService(repo repository.APIKeyRepository) *APIKeyService {
 	}
 }
 
-// GenerateAPIKey СЃРѕР·РґР°РµС‚ РЅРѕРІС‹Р№ API РєР»СЋС‡ РґР»СЏ СѓРєР°Р·Р°РЅРЅРѕРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
+// GenerateAPIKey создает новый API ключ для указанного пользователя
 func (a *APIKeyService) GenerateAPIKey(userID string, name string) (*models.APIKeyResponse, error) {
 	keyID, err := utils.GenerateRandomString(16)
 	if err != nil {
@@ -58,7 +58,7 @@ func (a *APIKeyService) GenerateAPIKey(userID string, name string) (*models.APIK
 	return apiKey, nil
 }
 
-// ValidateAPIKey РїСЂРѕРІРµСЂСЏРµС‚ API РєР»СЋС‡ (С„РѕСЂРјР°С‚ ID.Secret)
+// ValidateAPIKey проверяет API ключ (формат ID.Secret)
 func (a *APIKeyService) ValidateAPIKey(fullKey string) (*models.APIKeyResponse, error) {
 	if len(fullKey) == 0 {
 		return nil, fmt.Errorf("missing api key")
@@ -90,7 +90,7 @@ func (a *APIKeyService) ValidateAPIKey(fullKey string) (*models.APIKeyResponse, 
 	return &apiKey, nil
 }
 
-// RevokeAPIKey РѕС‚Р·С‹РІР°РµС‚ API РєР»СЋС‡ РїРѕ РµРіРѕ ID
+// RevokeAPIKey отзывает API ключ по его ID
 func (a *APIKeyService) RevokeAPIKey(keyID string) error {
 	if len(keyID) == 0 {
 		return fmt.Errorf("invalid key ID")

@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// NewAuthRouter СЃРѕР·РґР°РµС‚ СЂРѕСѓС‚РµСЂ РґР»СЏ СЃРµСЂРІРёСЃР° Р°СѓС‚РµРЅС‚РёС„РёРєР°С†РёРё
+// NewAuthRouter создает роутер для сервиса аутентификации
 func NewAuthRouter(h *handler.Handler, authMid *middleware.AuthMiddleware) *gin.Engine {
 	r := gin.Default()
 
