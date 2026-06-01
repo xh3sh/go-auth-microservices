@@ -73,7 +73,7 @@ func (r *redisRepository) GetLogs(ctx context.Context, page, pageSize int) ([]mo
 }
 
 // FilterLogs фильтрует логи по пользователю, сервису и типу
-func (r *redisRepository) FilterLogs(ctx context.Context, userID string, service, logType string, page, pageSize int) ([]models.LogEntry, int64, error) {
+func (r *redisRepository) FilterLogs(ctx context.Context, userID string, service, logType, traceID string, page, pageSize int) ([]models.LogEntry, int64, error) {
 	var keys []string
 	minScore := float64(time.Now().Add(-constants.LogTTL).UnixNano())
 	minScoreStr := fmt.Sprintf("%f", minScore)
@@ -90,6 +90,11 @@ func (r *redisRepository) FilterLogs(ctx context.Context, userID string, service
 	}
 	if logType != "" {
 		key := r.buildKey(fmt.Sprintf("%s%s", constants.PrefixLogType, logType))
+		r.client.ZRemRangeByScore(ctx, key, "-inf", minScoreStr)
+		keys = append(keys, key)
+	}
+	if traceID != "" {
+		key := r.buildKey(fmt.Sprintf("%strace:%s", constants.PrefixLogType, traceID))
 		r.client.ZRemRangeByScore(ctx, key, "-inf", minScoreStr)
 		keys = append(keys, key)
 	}

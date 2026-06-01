@@ -8,5 +8,5 @@ import (
 type LogRepository interface {
 	SaveLog(ctx context.Context, log models.LogEntry) error
 	GetLogs(ctx context.Context, page, pageSize int) ([]models.LogEntry, int64, error)
-	FilterLogs(ctx context.Context, userID string, service, logType string, page, pageSize int) ([]models.LogEntry, int64, error)
+	FilterLogs(ctx context.Context, userID string, service, logType, traceID string, page, pageSize int) ([]models.LogEntry, int64, error)
 }

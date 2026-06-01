@@ -17,25 +17,33 @@
     </div>
     <!-- Фильтрация -->
     <div x-show="activeLogTab === 'filter'">
-        <form @submit.prevent="applyFilters($event)" class="form-container">
-            <div class="form-group">
-                <label>User ID</label>
-                <input type="text" name="user_id" placeholder="Все пользователи (пусто или 0)">
+        <form @submit.prevent="applyFilters($event)" class="log-filter-form">
+            <div class="filter-row">
+                <div class="form-group flex-1">
+                    <label>User ID</label>
+                    <input type="text" name="user_id" placeholder="Все пользователи">
+                </div>
+                <div class="form-group flex-1">
+                    <label>Trace ID</label>
+                    <input type="text" name="trace_id" placeholder="Поиск по трассе">
+                </div>
             </div>
-            <div class="form-group">
-                <label>Сервис</label>
-                <select name="service">
-                    <option value="">Все сервисы</option>
-                    <option value="auth">Auth</option>
-                    <option value="gateway">Gateway</option>
-                    <option value="user">User</option>
-                </select>
+            <div class="filter-row">
+                <div class="form-group flex-1">
+                    <label>Сервис</label>
+                    <select name="service" class="styled-select">
+                        <option value="">Все сервисы</option>
+                        <option value="auth">Auth</option>
+                        <option value="gateway">Gateway</option>
+                        <option value="user">User</option>
+                    </select>
+                </div>
+                <div class="form-group flex-1">
+                    <label>Тип события</label>
+                    <input type="text" name="type" placeholder="Напр. jwt_login">
+                </div>
             </div>
-            <div class="form-group">
-                <label>Тип события</label>
-                <input type="text" name="type" placeholder="Напр. auth.login">
-            </div>
-            <button type="submit" class="btn-submit" :disabled="loading" style="background: #d35400;">
+            <button type="submit" class="btn-submit" :disabled="loading" style="background: #d35400; width: 100%; margin-top: 10px;">
                 <span x-show="!loading">Применить фильтры</span>
                 <span x-show="loading">Загрузка...</span>
             </button>
@@ -45,18 +53,26 @@
     <!-- Результаты (Рендеринг логов через Alpine) -->
     <div id="log-result" style="margin-top: 20px;">
         <div class="log-cards">
-            <template x-for="log in logs" :key="log.timestamp + log.type">
+            <template x-for="log in logs" :key="log.id">
                 <div class="log-card" :class="'service-' + log.service">
                     <div class="log-card-header">
                         <span class="log-type" x-text="log.type"></span>
                         <span class="log-service-badge" x-text="log.service"></span>
                     </div>
                     <div class="log-card-body">
-                        <div class="log-info-item">
-                            <span class="log-info-label">User ID:</span>
-                            <span class="log-info-value" x-text="log.user_id || '—'"></span>
+                        <div class="log-meta-grid">
+                            <div class="log-info-item">
+                                <span class="log-info-label">User:</span>
+                                <span class="log-info-value" x-text="log.user_id || '—'"></span>
+                            </div>
+                            <template x-if="log.trace_id">
+                                <div class="log-info-item">
+                                    <span class="log-info-label">Trace:</span>
+                                    <span class="trace-badge" x-text="log.trace_id.substring(0,8) + '...'" :title="log.trace_id" @click="navigator.clipboard.writeText(log.trace_id)"></span>
+                                </div>
+                            </template>
                         </div>
-                        <pre class="log-data" x-text="log.formattedData" style="white-space: pre-wrap; font-family: monospace; font-size: 0.85rem; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 4px; color: #ecf0f1;"></pre>
+                        <pre class="log-data" x-text="log.formattedData"></pre>
                     </div>
                     <div class="log-timestamp" x-text="log.displayDate"></div>
                 </div>

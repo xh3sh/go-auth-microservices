@@ -37,6 +37,7 @@ func (h *Handler) FilterLogs(c *gin.Context) {
 	userID := c.Query("user_id")
 	service := c.Query("service")
 	logType := c.Query("type")
+	traceID := c.Query("trace_id")
 
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if page < 1 {
@@ -47,7 +48,7 @@ func (h *Handler) FilterLogs(c *gin.Context) {
 		pageSize = 20
 	}
 
-	logs, total, err := h.repo.FilterLogs(c.Request.Context(), userID, service, logType, page, pageSize)
+	logs, total, err := h.repo.FilterLogs(c.Request.Context(), userID, service, logType, traceID, page, pageSize)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to filter logs"})
 		return
