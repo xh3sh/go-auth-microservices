@@ -13,7 +13,6 @@ func NewAuthRouter(h *handler.Handler, authMid *middleware.AuthMiddleware) *gin.
 	r := gin.Default()
 
 	r.Use(otelgin.Middleware("auth-service"))
-	r.Use(middleware.APILogger(h.GetEventRepo()))
 
 	authGroup := r.Group("/auth")
 	{
